@@ -15,4 +15,8 @@
         <PackageReference Include="System.DirectoryServices.Protocols" Version="8.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <TypeScriptCompile Include="wwwroot\scripts\example.tsx" />
+    </ItemGroup>
+
 </Project>

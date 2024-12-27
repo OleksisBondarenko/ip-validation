@@ -1,3 +1,4 @@
+using System.DirectoryServices;
 using System.DirectoryServices.Protocols;
 using ADValidation.Models;
 using ADValidation.Services;
@@ -15,9 +16,8 @@ public class ValidateController : ControllerBase
     private readonly DomainService _domainService;
     private readonly IPAddressService _ipAddressService;
     private readonly LDAPSettings _ldapSettings;
-    
-    
-    public ValidateController(DomainService domainService, IPAddressService ipAddressService, IOptions<LDAPSettings> ldapSettings )
+
+    public ValidateController(DomainService domainService, IPAddressService ipAddressService, IOptions<LDAPSettings> ldapSettings)
     {
         _domainService = domainService;
         _ipAddressService = ipAddressService;
@@ -28,30 +28,31 @@ public class ValidateController : ControllerBase
     public IActionResult Validate()
     {
         string userIp = _ipAddressService.GetRequestIP();
-        
-        string resolvedHostname = DnsUtils.GetHostnameFromIp(userIp);
-        
-        resolvedHostname = "test";
-        
-        if (resolvedHostname == null)
-        {
-            return BadRequest("IP address is not valid");
-        }
 
         if (string.IsNullOrEmpty(userIp))
         {
             return BadRequest("IP address is missing.");
         }
 
+        string resolvedHostname = DnsUtils.GetHostnameFromIp(userIp);
+        resolvedHostname = "server2019.ad1.org";
+        
+        if (string.IsNullOrEmpty(resolvedHostname))
+        {
+            return BadRequest("IP address is not valid or hostname could not be resolved.");
+        }
+
         foreach (var domain in _ldapSettings.Domains)
         {
             if (_domainService.IsHostnameInActiveDirectory(domain, resolvedHostname))
             {
-                // return Ok(); // Validation success
-                return Redirect("https://youtube.com");
+                string username = _domainService.GetUsernameFromHostname(domain, resolvedHostname);
+                
+                return Ok(new { Username = username });
             }
         }
 
-        return NotFound(); // Validation failed
+        return NotFound("Hostname not found in any configured Active Directory domain.");
     }
+
 }

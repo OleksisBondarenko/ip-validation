@@ -39,3 +39,4 @@ C:\Users\work\RiderProjects\ADValidation\ADValidation\obj\Debug\net8.0\ADValidat
 C:\Users\work\RiderProjects\ADValidation\ADValidation\obj\Debug\net8.0\ref\ADValidation.dll
 C:\Users\work\RiderProjects\ADValidation\ADValidation\bin\Debug\net8.0\HtmlAgilityPack.dll
 C:\Users\work\RiderProjects\ADValidation\ADValidation\bin\Debug\net8.0\AspNetCore.Proxy.dll
+C:\Users\work\RiderProjects\ADValidation\ADValidation\bin\Debug\net8.0\ADValidation.staticwebassets.runtime.json
