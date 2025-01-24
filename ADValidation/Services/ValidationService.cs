@@ -29,7 +29,6 @@ namespace ADValidation.Services
 
         public bool IsDNSPartOfDomain(string hostname)
         {
-
             if (string.IsNullOrEmpty(hostname))
             {
                 _logger.LogWarning($"hostname is null {hostname}");

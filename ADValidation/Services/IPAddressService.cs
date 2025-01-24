@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
 
 namespace ADValidation.Services;
@@ -40,6 +41,19 @@ public class IPAddressService
         return ip;
     }
 
+    
+    public string ExtractIPv4(string input)
+    {
+        // Define the regex pattern for an IPv4 address
+        string ipv4Pattern = @"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b";
+
+        // Match the pattern
+        Match match = Regex.Match(input, ipv4Pattern);
+
+        // Return the matched IPv4 address or null if not found
+        return match.Success ? match.Value : null;
+    }
+    
     private T GetHeaderValueAs<T>(string headerName, IHttpContextAccessor _httpContextAccessor)
     {
         StringValues values;

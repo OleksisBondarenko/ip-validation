@@ -64,6 +64,19 @@
                 descNode.textContent = description;
                 descNode.style.fontSize = `calc(${fontSize} / 1.5)`;
 
+                const dpsuIcoNode = document.createElement("div");
+                dpsuIcoNode.style.display = "inline-block";
+                dpsuIcoNode.height = "50px"
+                dpsuIcoNode.width = "50px"
+                
+                const dpsuIconImageNode = document.createElement("img");
+                dpsuIconImageNode.src = "./assets/dpsu.svg"
+                dpsuIconImageNode.style.height = "50px"
+                dpsuIconImageNode.style.width = "50px"
+
+                dpsuIcoNode.appendChild(dpsuIconImageNode);
+
+                watermarkElement.appendChild(dpsuIcoNode);
                 watermarkElement.appendChild(textNode);
                 watermarkElement.appendChild(descNode);
 
@@ -87,13 +100,13 @@
 
     // Usage example
     createWatermark({
-        text: "Watermark",
-        description: "Confidential",
+        text: "Пупкін Іван Іванович",
+        description: "193.23.33.2",
         opacity: 0.2,
-        fontSize: "2rem",
+        fontSize: "1.5rem",
         angle: -45,
         color: "gray",
         spacing: "250",
-        scaling: 1.2
+        scaling: 1
     });
 })();

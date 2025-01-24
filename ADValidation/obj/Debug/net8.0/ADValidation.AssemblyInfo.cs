@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ADValidation")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bf4e2ba55fec278b531a53655070c963a5d2a50f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a9ea8b10ae787c07b9534c06abdbe3d80463b172")]
 [assembly: System.Reflection.AssemblyProductAttribute("ADValidation")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ADValidation")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

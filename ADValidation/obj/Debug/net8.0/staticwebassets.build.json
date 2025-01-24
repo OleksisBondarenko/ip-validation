@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "AAGC5mM1+NT1GUs2vfPmEwYgb0/R2Ss2FWwWEAVLaAQ=",
+  "Hash": "tWIB67IGhVdkxktr8vyPuolGpfI3GALpS8vCGAXkEzc=",
   "Source": "ADValidation",
   "BasePath": "_content/ADValidation",
   "Mode": "Default",
@@ -34,6 +34,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\example.html"
+    },
+    {
+      "Identity": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\pages\\error.html",
+      "SourceId": "ADValidation",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\",
+      "BasePath": "_content/ADValidation",
+      "RelativePath": "pages/error.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\pages\\error.html"
     },
     {
       "Identity": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\scripts\\example.tsx",

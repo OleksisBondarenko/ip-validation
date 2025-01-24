@@ -10,7 +10,11 @@
         <PackageReference Include="AspNetCore.Proxy" Version="4.5.0" />
         <PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.6" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.0-preview3.24332.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+        <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
         <PackageReference Include="System.DirectoryServices" Version="8.0.0" />
         <PackageReference Include="System.DirectoryServices.Protocols" Version="8.0.0" />
     </ItemGroup>
@@ -18,5 +22,9 @@
     <ItemGroup>
       <TypeScriptCompile Include="wwwroot\scripts\example.tsx" />
     </ItemGroup>
+	
+	<ItemGroup>
+		<None Include="wwwroot\*" />
+	</ItemGroup>
 
 </Project>

@@ -1,188 +1,196 @@
 using System.DirectoryServices.Protocols;
 using ADValidation.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ADValidation.Services;
-
-public class DomainService
+namespace ADValidation.Services
 {
-    public string GetUsernameFromIp(LDAPDomain domain, string ipAddress)
+    public class DomainService
     {
-        try
+        private readonly ILogger<DomainService> _logger;
+
+        // Constructor with logger dependency injection
+        public DomainService(ILogger<DomainService> logger)
         {
-            var ldapConnection = new LdapConnection(domain.DomainController);
-            ldapConnection.Credential = new System.Net.NetworkCredential(
-                domain.Username,
-                domain.Password,
-                domain.DomainName
-            );
-            ldapConnection.AuthType = AuthType.Negotiate;
+            _logger = logger;
+        }
 
-            // Search request for the IP address
-            var searchRequest = new SearchRequest(
-                domain.BaseDN,
-                $"(&(objectClass=computer)(ipHostNumber={ipAddress}))",
-                SearchScope.Subtree,
-                "cn", "managedBy" // Attributes to retrieve
-            );
-
-            var searchResponse = (SearchResponse)ldapConnection.SendRequest(searchRequest);
-
-            if (searchResponse.Entries.Count > 0)
+        public string GetUsernameFromIp(LDAPDomain domain, string ipAddress)
+        {
+            try
             {
-                var managedBy = searchResponse.Entries[0].Attributes["managedBy"]?.GetValues(typeof(string))?.FirstOrDefault()?.ToString();
+                var ldapConnection = new LdapConnection(domain.DomainController);
+                ldapConnection.Credential = new System.Net.NetworkCredential(
+                    domain.Username,
+                    domain.Password,
+                    domain.DomainName
+                );
+                ldapConnection.AuthType = AuthType.Negotiate;
 
-                if (!string.IsNullOrEmpty(managedBy))
+                // Search request for the IP address
+                var searchRequest = new SearchRequest(
+                    domain.BaseDN,
+                    $"(&(objectClass=computer)(ipHostNumber={ipAddress}))",
+                    SearchScope.Subtree,
+                    "cn", "managedBy" // Attributes to retrieve
+                );
+
+                var searchResponse = (SearchResponse)ldapConnection.SendRequest(searchRequest);
+
+                if (searchResponse.Entries.Count > 0)
                 {
-                    // Retrieve the username associated with the managedBy attribute
-                    return GetUsernameFromDistinguishedName(domain, managedBy);
+                    var managedBy = searchResponse.Entries[0].Attributes["managedBy"]?.GetValues(typeof(string))?.FirstOrDefault()?.ToString();
+
+                    if (!string.IsNullOrEmpty(managedBy))
+                    {
+                        // Retrieve the username associated with the managedBy attribute
+                        return GetUsernameFromDistinguishedName(domain, managedBy);
+                    }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error querying domain {domain.DomainName} for IP {ipAddress}: {ex.Message}");
-        }
-
-        return null;
-    }
-
-    public string GetUsernameFromHostname(LDAPDomain domain, string hostname)
-    {
-        try
-        {
-            var ldapConnection = new LdapConnection(domain.DomainController);
-            ldapConnection.Credential = new System.Net.NetworkCredential(
-                domain.Username,
-                domain.Password,
-                domain.DomainName
-            );
-            ldapConnection.AuthType = AuthType.Negotiate;
-
-            // Search request for the hostname
-            var searchRequest = new SearchRequest(
-                domain.BaseDN,
-                // $"(&(objectClass=computer)(dNSHostName={hostname}))",
-                $"(dNSHostName={hostname})",
-                SearchScope.Subtree,
-                "cn", "managedBy" // Attributes to retrieve
-            );
-
-            var searchResponse = (SearchResponse)ldapConnection.SendRequest(searchRequest);
-
-            if (searchResponse.Entries.Count > 0)
+            catch (Exception ex)
             {
-                var managedBy = searchResponse.Entries[0].Attributes["managedBy"]?.GetValues(typeof(string))?.FirstOrDefault()?.ToString();
+                _logger.LogError(ex, "Error querying domain {DomainName} for IP {IpAddress}", domain.DomainName, ipAddress);
+            }
 
-                if (!string.IsNullOrEmpty(managedBy))
+            return null;
+        }
+
+        public string GetUsernameFromHostname(LDAPDomain domain, string hostname)
+        {
+            try
+            {
+                var ldapConnection = new LdapConnection(domain.DomainController);
+                ldapConnection.Credential = new System.Net.NetworkCredential(
+                    domain.Username,
+                    domain.Password,
+                    domain.DomainName
+                );
+                ldapConnection.AuthType = AuthType.Negotiate;
+
+                // Search request for the hostname
+                var searchRequest = new SearchRequest(
+                    domain.BaseDN,
+                    $"(dNSHostName={hostname})",
+                    SearchScope.Subtree,
+                    "cn", "managedBy" // Attributes to retrieve
+                );
+
+                var searchResponse = (SearchResponse)ldapConnection.SendRequest(searchRequest);
+
+                if (searchResponse.Entries.Count > 0)
                 {
-                    // Retrieve the username associated with the managedBy attribute
-                    return GetUsernameFromDistinguishedName(domain, managedBy);
+                    var managedBy = searchResponse.Entries[0].Attributes["managedBy"]?.GetValues(typeof(string))?.FirstOrDefault()?.ToString();
+
+                    if (!string.IsNullOrEmpty(managedBy))
+                    {
+                        // Retrieve the username associated with the managedBy attribute
+                        return GetUsernameFromDistinguishedName(domain, managedBy);
+                    }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error querying domain {domain.DomainName} for hostname {hostname}: {ex.Message}");
-        }
-
-        return null;
-    }
-
-    private string GetUsernameFromDistinguishedName(LDAPDomain domain, string distinguishedName)
-    {
-        try
-        {
-            var ldapConnection = new LdapConnection(domain.DomainController);
-            ldapConnection.Credential = new System.Net.NetworkCredential(
-                domain.Username,
-                domain.Password,
-                domain.DomainName
-            );
-            ldapConnection.AuthType = AuthType.Negotiate;
-
-            // Search request for the distinguished name
-            var searchRequest = new SearchRequest(
-                domain.BaseDN,
-                $"(distinguishedName={distinguishedName})",
-                SearchScope.Subtree,
-                "sAMAccountName" // Attribute to retrieve
-            );
-
-            var searchResponse = (SearchResponse)ldapConnection.SendRequest(searchRequest);
-
-            if (searchResponse.Entries.Count > 0)
+            catch (Exception ex)
             {
-                return searchResponse.Entries[0].Attributes["sAMAccountName"]?.GetValues(typeof(string))?.FirstOrDefault()?.ToString();
+                _logger.LogError(ex, "Error querying domain {DomainName} for hostname {Hostname}", domain.DomainName, hostname);
+            }
+
+            return null;
+        }
+
+        private string GetUsernameFromDistinguishedName(LDAPDomain domain, string distinguishedName)
+        {
+            try
+            {
+                var ldapConnection = new LdapConnection(domain.DomainController);
+                ldapConnection.Credential = new System.Net.NetworkCredential(
+                    domain.Username,
+                    domain.Password,
+                    domain.DomainName
+                );
+                ldapConnection.AuthType = AuthType.Negotiate;
+
+                // Search request for the distinguished name
+                var searchRequest = new SearchRequest(
+                    domain.BaseDN,
+                    $"(distinguishedName={distinguishedName})",
+                    SearchScope.Subtree,
+                    "sAMAccountName" // Attribute to retrieve
+                );
+
+                var searchResponse = (SearchResponse)ldapConnection.SendRequest(searchRequest);
+
+                if (searchResponse.Entries.Count > 0)
+                {
+                    return searchResponse.Entries[0].Attributes["sAMAccountName"]?.GetValues(typeof(string))?.FirstOrDefault()?.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving username from distinguished name {DistinguishedName}", distinguishedName);
+            }
+
+            return null;
+        }
+        public bool IsIpInActiveDirectory(LDAPDomain domain, string ipAddress)
+        {
+            try
+            {
+                var ldapConnection = new LdapConnection(domain.DomainController);
+                ldapConnection.Credential = new System.Net.NetworkCredential(
+                    domain.Username,
+                    domain.Password,
+                    domain.DomainName
+                );
+                ldapConnection.AuthType = AuthType.Negotiate;
+
+                // Search request for IP address
+                var searchRequest = new SearchRequest(
+                    domain.BaseDN,
+                    $"(&(objectClass=computer)(ipHostNumber={ipAddress}))",
+                    SearchScope.Subtree,
+                    "cn" // Attributes to retrieve
+                );
+
+                var searchResponse = (SearchResponse)ldapConnection.SendRequest(searchRequest);
+
+                return searchResponse.Entries.Count > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error querying domain {DomainName} for IP {IpAddress}", domain.DomainName, ipAddress);
+                return false;
             }
         }
-        catch (Exception ex)
+
+        public bool IsHostnameInActiveDirectory(LDAPDomain domain, string hostname)
         {
-            Console.WriteLine($"Error retrieving username from distinguished name {distinguishedName}: {ex.Message}");
-        }
+            try
+            {
+                var ldapConnection = new LdapConnection(domain.DomainController);
+                ldapConnection.Credential = new System.Net.NetworkCredential(
+                    domain.Username,
+                    domain.Password,
+                    domain.DomainName
+                );
+                ldapConnection.AuthType = AuthType.Negotiate;
 
-        return null;
-    }
+                // Search request for DNS record in AD DS
+                var searchRequest = new SearchRequest(
+                    domain.BaseDN,
+                    $"(&(objectClass=computer)(dNSHostName={hostname}))",
+                    SearchScope.Subtree,
+                    "cn" // Attributes to retrieve
+                );
 
-    public bool IsIpInActiveDirectory(LDAPDomain domain, string ipAddress)
-    {
-        try
-        {
-            var ldapConnection = new LdapConnection(domain.DomainController);
-            ldapConnection.Credential = new System.Net.NetworkCredential(
-                domain.Username,
-                domain.Password,
-                domain.DomainName
-            );
-            ldapConnection.AuthType = AuthType.Negotiate;
+                var searchResponse = (SearchResponse)ldapConnection.SendRequest(searchRequest);
 
-            // Search request for IP address
-            var searchRequest = new SearchRequest(
-                domain.BaseDN,
-                $"(&(objectClass=computer)(ipHostNumber={ipAddress}))",
-                SearchScope.Subtree,
-                "cn" // Attributes to retrieve
-            );
-
-            var searchResponse = (SearchResponse)ldapConnection.SendRequest(searchRequest);
-
-            return searchResponse.Entries.Count > 0;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error querying domain {domain.DomainName}: {ex.Message}");
-            return false;
-        }
-    }
-
-    public bool IsHostnameInActiveDirectory(LDAPDomain domain, string hostname)
-    {
-        try
-        {
-            var ldapConnection = new LdapConnection(domain.DomainController);
-            ldapConnection.Credential = new System.Net.NetworkCredential(
-                domain.Username,
-                domain.Password,
-                domain.DomainName
-            );
-            ldapConnection.AuthType = AuthType.Negotiate;
-
-            // Search request for DNS record in AD DS
-            var searchRequest = new SearchRequest(
-                domain.BaseDN,
-                $"(&(objectClass=computer)(dNSHostName={hostname}))",
-                SearchScope.Subtree,
-                "cn" // Attributes to retrieve
-            );
-
-            var searchResponse = (SearchResponse)ldapConnection.SendRequest(searchRequest);
-
-            return searchResponse.Entries.Count > 0;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error querying domain {domain.DomainName}: {ex.Message}");
-            return false;
+                return searchResponse.Entries.Count > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error querying domain {DomainName} for hostname {Hostname}", domain.DomainName, hostname);
+                return false;
+            }
         }
     }
 }

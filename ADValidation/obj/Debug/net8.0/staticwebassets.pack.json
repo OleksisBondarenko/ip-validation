@@ -5,6 +5,10 @@
       "PackagePath": "staticwebassets\\example.html"
     },
     {
+      "Id": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\pages\\error.html",
+      "PackagePath": "staticwebassets\\pages\\error.html"
+    },
+    {
       "Id": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\scripts\\NewFile1.js",
       "PackagePath": "staticwebassets\\scripts\\NewFile1.js"
     },

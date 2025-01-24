@@ -1,0 +1,640 @@
+{
+  "Version": 1,
+  "Hash": "Cqnx7sbCB+dwkHiubcNsjNG0dVgqBKhM1D9kvsHaCpk=",
+  "Source": "ADValidation",
+  "BasePath": "_content/ADValidation",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "ADValidation\\wwwroot",
+      "Source": "ADValidation",
+      "ContentRoot": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\",
+      "BasePath": "_content/ADValidation",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\assets\\dpsu_gray-scale.svg",
+      "SourceId": "ADValidation",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\",
+      "BasePath": "_content/ADValidation",
+      "RelativePath": "assets/dpsu_gray-scale#[.{fingerprint}]?.svg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "h1lbidm9dd",
+      "Integrity": "u3rT6MB3xhGVeCK+JCAikUhmqr7bgsvrTenjPbxftCY=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\assets\\dpsu_gray-scale.svg"
+    },
+    {
+      "Identity": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\example.html",
+      "SourceId": "ADValidation",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\",
+      "BasePath": "_content/ADValidation",
+      "RelativePath": "example#[.{fingerprint}]?.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "d24ieej16p",
+      "Integrity": "FRv/JzXxrmh628X8ZFm16sj3V5Wudh7W59kf/RvjmkI=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\example.html"
+    },
+    {
+      "Identity": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\pages\\error.html",
+      "SourceId": "ADValidation",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\",
+      "BasePath": "_content/ADValidation",
+      "RelativePath": "pages/error#[.{fingerprint}]?.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "jhwuuhu545",
+      "Integrity": "9+FeErFAYNsEOhYhvrqFHd+e7yarfxHDIcO+sNdykSs=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\pages\\error.html"
+    },
+    {
+      "Identity": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\scripts\\example.tsx",
+      "SourceId": "ADValidation",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\",
+      "BasePath": "_content/ADValidation",
+      "RelativePath": "scripts/example#[.{fingerprint}]?.tsx",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "2j5q1z6jso",
+      "Integrity": "gjTqRjNTnjC7xICSupotAynMR66t6o4Ra+RlgUDCiGc=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\scripts\\example.tsx"
+    },
+    {
+      "Identity": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\scripts\\myScript.js",
+      "SourceId": "ADValidation",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\",
+      "BasePath": "_content/ADValidation",
+      "RelativePath": "scripts/myScript#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "smcuoxp6b5",
+      "Integrity": "jBgHTd+5WmWVl1Yubwu4CiLUzyze5XCnGU49IOzSqRQ=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\scripts\\myScript.js"
+    },
+    {
+      "Identity": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\scripts\\NewFile1.js",
+      "SourceId": "ADValidation",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\",
+      "BasePath": "_content/ADValidation",
+      "RelativePath": "scripts/NewFile1#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "kmlrhkoese",
+      "Integrity": "xNgOZ2+jQAOq78Ar2eYew+j7p9RBtAem3Jdxiy3kHPo=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\scripts\\NewFile1.js"
+    }
+  ],
+  "Endpoints": [
+    {
+      "Route": "assets/dpsu_gray-scale.h1lbidm9dd.svg",
+      "AssetFile": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\assets\\dpsu_gray-scale.svg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4288"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/svg+xml"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"u3rT6MB3xhGVeCK+JCAikUhmqr7bgsvrTenjPbxftCY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 03 Jan 2025 09:28:25 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "h1lbidm9dd"
+        },
+        {
+          "Name": "label",
+          "Value": "assets/dpsu_gray-scale.svg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-u3rT6MB3xhGVeCK+JCAikUhmqr7bgsvrTenjPbxftCY="
+        }
+      ]
+    },
+    {
+      "Route": "assets/dpsu_gray-scale.svg",
+      "AssetFile": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\assets\\dpsu_gray-scale.svg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4288"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/svg+xml"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"u3rT6MB3xhGVeCK+JCAikUhmqr7bgsvrTenjPbxftCY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 03 Jan 2025 09:28:25 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-u3rT6MB3xhGVeCK+JCAikUhmqr7bgsvrTenjPbxftCY="
+        }
+      ]
+    },
+    {
+      "Route": "example.d24ieej16p.html",
+      "AssetFile": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\example.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2813"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"FRv/JzXxrmh628X8ZFm16sj3V5Wudh7W59kf/RvjmkI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 03 Jan 2025 09:21:21 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "d24ieej16p"
+        },
+        {
+          "Name": "label",
+          "Value": "example.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-FRv/JzXxrmh628X8ZFm16sj3V5Wudh7W59kf/RvjmkI="
+        }
+      ]
+    },
+    {
+      "Route": "example.html",
+      "AssetFile": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\example.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2813"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"FRv/JzXxrmh628X8ZFm16sj3V5Wudh7W59kf/RvjmkI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 03 Jan 2025 09:21:21 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-FRv/JzXxrmh628X8ZFm16sj3V5Wudh7W59kf/RvjmkI="
+        }
+      ]
+    },
+    {
+      "Route": "pages/error.html",
+      "AssetFile": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\pages\\error.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "507"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"9+FeErFAYNsEOhYhvrqFHd+e7yarfxHDIcO+sNdykSs=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 03 Jan 2025 08:51:45 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-9+FeErFAYNsEOhYhvrqFHd+e7yarfxHDIcO+sNdykSs="
+        }
+      ]
+    },
+    {
+      "Route": "pages/error.jhwuuhu545.html",
+      "AssetFile": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\pages\\error.html",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "507"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/html"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"9+FeErFAYNsEOhYhvrqFHd+e7yarfxHDIcO+sNdykSs=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 03 Jan 2025 08:51:45 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "jhwuuhu545"
+        },
+        {
+          "Name": "label",
+          "Value": "pages/error.html"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-9+FeErFAYNsEOhYhvrqFHd+e7yarfxHDIcO+sNdykSs="
+        }
+      ]
+    },
+    {
+      "Route": "scripts/example.2j5q1z6jso.tsx",
+      "AssetFile": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\scripts\\example.tsx",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3382"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"gjTqRjNTnjC7xICSupotAynMR66t6o4Ra+RlgUDCiGc=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 27 Dec 2024 14:46:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "2j5q1z6jso"
+        },
+        {
+          "Name": "label",
+          "Value": "scripts/example.tsx"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-gjTqRjNTnjC7xICSupotAynMR66t6o4Ra+RlgUDCiGc="
+        }
+      ]
+    },
+    {
+      "Route": "scripts/example.tsx",
+      "AssetFile": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\scripts\\example.tsx",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3382"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/octet-stream"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"gjTqRjNTnjC7xICSupotAynMR66t6o4Ra+RlgUDCiGc=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 27 Dec 2024 14:46:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-gjTqRjNTnjC7xICSupotAynMR66t6o4Ra+RlgUDCiGc="
+        }
+      ]
+    },
+    {
+      "Route": "scripts/myScript.js",
+      "AssetFile": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\scripts\\myScript.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4613"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"jBgHTd+5WmWVl1Yubwu4CiLUzyze5XCnGU49IOzSqRQ=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 03 Jan 2025 09:15:39 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-jBgHTd+5WmWVl1Yubwu4CiLUzyze5XCnGU49IOzSqRQ="
+        }
+      ]
+    },
+    {
+      "Route": "scripts/myScript.smcuoxp6b5.js",
+      "AssetFile": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\scripts\\myScript.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4613"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"jBgHTd+5WmWVl1Yubwu4CiLUzyze5XCnGU49IOzSqRQ=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 03 Jan 2025 09:15:39 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "smcuoxp6b5"
+        },
+        {
+          "Name": "label",
+          "Value": "scripts/myScript.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-jBgHTd+5WmWVl1Yubwu4CiLUzyze5XCnGU49IOzSqRQ="
+        }
+      ]
+    },
+    {
+      "Route": "scripts/NewFile1.js",
+      "AssetFile": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\scripts\\NewFile1.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3279"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"xNgOZ2+jQAOq78Ar2eYew+j7p9RBtAem3Jdxiy3kHPo=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 26 Dec 2024 08:33:50 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-xNgOZ2+jQAOq78Ar2eYew+j7p9RBtAem3Jdxiy3kHPo="
+        }
+      ]
+    },
+    {
+      "Route": "scripts/NewFile1.kmlrhkoese.js",
+      "AssetFile": "C:\\Users\\work\\RiderProjects\\ADValidation\\ADValidation\\wwwroot\\scripts\\NewFile1.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3279"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"xNgOZ2+jQAOq78Ar2eYew+j7p9RBtAem3Jdxiy3kHPo=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 26 Dec 2024 08:33:50 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "kmlrhkoese"
+        },
+        {
+          "Name": "label",
+          "Value": "scripts/NewFile1.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-xNgOZ2+jQAOq78Ar2eYew+j7p9RBtAem3Jdxiy3kHPo="
+        }
+      ]
+    }
+  ]
+}
