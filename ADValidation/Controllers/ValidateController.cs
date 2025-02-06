@@ -40,12 +40,20 @@ public class ValidateController : ControllerBase
         }
     
         // TODO: update view of hostname. Here is only EXAMPLE!
-        if (!string.IsNullOrEmpty(isEset))
-        {
-            string esetNostname = await _eraValidationService.GetHostByIp(ipv4Address);
+        string hostname = String.Empty;
+        
+        // if (!string.IsNullOrEmpty(isEset))
+        // {
+            hostname = await _eraValidationService.GetHostByIp(ipv4Address);
+            //hostname = "DESKTOP-85HF40J.ad1.org";
+           
+            if (string.IsNullOrEmpty(hostname))
+            {
+                return BadRequest(new { ipAddress = ipv4Address });
+            }
             
-            return Ok(new { ipAddress = ipv4Address, hostName = esetNostname });
-        }
+            
+        // }
         // string resolvedHostname = DnsUtils.GetHostnameFromIp(userIp);
         //
         // if (string.IsNullOrEmpty(resolvedHostname))
@@ -57,19 +65,16 @@ public class ValidateController : ControllerBase
         // if (string.IsNullOrEmpty(isDomain))
         // {
         
-            string hostname = await _eraValidationService.GetHostByIp(ipv4Address);
-            IPHostEntry dnsHost = Dns.GetHostEntry(hostname);
-            
             foreach (var domain in _ldapSettings.Domains)
             {
                 if (_domainService.IsHostnameInActiveDirectory(domain, hostname))
                 {
                     string username = _domainService.GetUsernameFromHostname(domain, hostname);
-                    return Ok(new { Username = username, ipAddress = ipv4Address, domain = domain.DomainName });
+                    return Ok(new { Username = username, IpAddress = ipv4Address, Hostname = hostname, Domain = domain.DomainName });
                 } 
             }
             
-            return NotFound(new { message = "Hostname not found in any configured Active Directory domain.", ipAddress = ipv4Address });
+            return BadRequest(new { message = "Hostname not found in any configured Active Directory domain.", ipAddress = ipv4Address });
 
         // }
 

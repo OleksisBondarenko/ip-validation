@@ -52,7 +52,7 @@ public class EraValidationService
         {
             await connection.OpenAsync();
             var command = new SqlCommand(
-            "SELECT [Address], [Mac], [Occurred], [SourceUuid] FROM [tblf_network_ipaddresses_status] WHERE Address = @Address", connection);
+            "SELECT [Address], [Mac], [Occurred], [SourceUuid] FROM [tblf_network_ipaddresses_status] WHERE Address = @Address ORDER BY [Occurred] DESC", connection);
             command.Parameters.AddWithValue("@Address", address);
 
             using (var reader = await command.ExecuteReaderAsync())
