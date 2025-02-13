@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
+using ADValidation.Decorators;
 using ADValidation.Models;
 using ADValidation.Models.ERA;
 using ADValidation.Services;
@@ -12,6 +13,8 @@ using AspNetCore.Proxy;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +32,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 builder.Services.AddProxies();
+
+// Add DbContext with SQLite
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<AuditService>();
+builder.Services.AddScoped<AuditLoggerService>();
 
 // Configure HttpClient with custom settings
 builder.Services
@@ -78,6 +88,7 @@ app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
 
 app.MapControllers()
@@ -159,7 +170,7 @@ app.MapControllers()
 //                         if (contentMediaType.Equals("application/binary"))
 //                         {
 //                             return;
-//                         }
+//                u         }
 //                         
 //                         if (response.Content.Headers.ContentEncoding != null &&
 //                             response.Content.Headers.ContentEncoding.Contains("gzip"))
@@ -211,5 +222,11 @@ app.MapControllers()
 //             });
 //         });
 // });
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+}
 
 app.Run();

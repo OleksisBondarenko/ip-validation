@@ -5,6 +5,9 @@
 
 SetupVSCodeOnlyCode.MSI/
 
+*.db
+*.db-*
+
 # User-specific files
 *.suo
 *.user

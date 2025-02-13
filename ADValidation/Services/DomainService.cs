@@ -174,7 +174,7 @@ namespace ADValidation.Services
                 );
                 ldapConnection.AuthType = AuthType.Negotiate;
 
-                // Search request for DNS record in AD DS
+                // Search for the computer object itself
                 var searchRequest = new SearchRequest(
                     domain.BaseDN,
                     $"(&(objectClass=computer)(dNSHostName={hostname}))",
@@ -184,7 +184,23 @@ namespace ADValidation.Services
 
                 var searchResponse = (SearchResponse)ldapConnection.SendRequest(searchRequest);
 
-                return searchResponse.Entries.Count > 0;
+                // If the computer object exists, return true
+                if (searchResponse.Entries.Count > 0)
+                {
+                    return true;
+                }
+
+                // If no computer object is found, check DNS records
+                var dnsSearchRequest = new SearchRequest(
+                    domain.BaseDN,
+                    $"(&(objectClass=dnsNode)(name={hostname}))",
+                    SearchScope.Subtree,
+                    "cn"
+                );
+
+                var dnsSearchResponse = (SearchResponse)ldapConnection.SendRequest(dnsSearchRequest);
+
+                return dnsSearchResponse.Entries.Count > 0;
             }
             catch (Exception ex)
             {
@@ -192,5 +208,6 @@ namespace ADValidation.Services
                 return false;
             }
         }
+
     }
 }
