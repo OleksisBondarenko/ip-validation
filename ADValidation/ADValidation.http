@@ -1,6 +1,0 @@
-@ADValidation_HostAddress = http://localhost:5006
-
-GET {{ADValidation_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

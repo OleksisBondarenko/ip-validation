@@ -94,7 +94,7 @@ namespace ADValidation.Services
                 _logger.LogError(ex, "Error querying domain {DomainName} for hostname {Hostname}", domain.DomainName, hostname);
             }
 
-            return null;
+            return String.Empty;
         }
 
         private string GetUsernameFromDistinguishedName(LDAPDomain domain, string distinguishedName)

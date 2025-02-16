@@ -1,18 +1,11 @@
-using System.DirectoryServices;
-using System.DirectoryServices.Protocols;
-using System.Net;
 using ADValidation.Decorators;
 using ADValidation.Enums;
 using ADValidation.Models;
-using ADValidation.Models.Audit;
-using ADValidation.Models.ERA;
 using ADValidation.Services;
-using ADValidation.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 
-namespace ADValidation.Middleware;
+namespace ADValidation.Controllers;
 
 [ApiController]
 [Route("[controller]")]
@@ -23,8 +16,7 @@ public class ValidateController : ControllerBase
     private readonly IPAddressService _ipAddressService;
     private readonly LDAPSettings _ldapSettings;
     private readonly AuditLoggerService _auditLogger;
-    private readonly AuditService _auditService;
-
+    
     public ValidateController(DomainService domainService, AuditService auditService, AuditLoggerService auditLogger,
         IPAddressService ipAddressService, EraValidationService eraValidationService,
         IOptions<LDAPSettings> ldapSettings)
@@ -34,63 +26,57 @@ public class ValidateController : ControllerBase
         _ldapSettings = ldapSettings.Value;
         _eraValidationService = eraValidationService;
         _auditLogger = auditLogger;
-        _auditService = auditService;
+        
     }
 
     [HttpGet]
-    public async Task<ActionResult> Validate([FromQuery] string? isUsername, [FromQuery] string? isEset,
+    public async Task<ActionResult> Validate(
+        [FromQuery] string? isUsername, 
+        [FromQuery] string? isEset,
         [FromQuery] string? isSafetica)
     {
+        
+        ValidationSuccessResult validationResult = new ValidationSuccessResult();
+        ValidationFailResult validationFailResult = new ValidationFailResult();
+        
         string userIp = _ipAddressService.GetRequestIP();
-        string ipv4Address = _ipAddressService.ExtractIPv4(userIp);
+        validationResult.IpAddress = _ipAddressService.ExtractIPv4(userIp);
 
-        if (string.IsNullOrEmpty(ipv4Address))
+        if (string.IsNullOrEmpty(validationResult.IpAddress))
         {
-            return Unauthorized(new { message = "Please provide a valid IP address.", ipAddress = ipv4Address });
+            validationFailResult.Message = "Please provide a valid IP address.";
+            return Unauthorized(validationFailResult);
         }
 
         // TODO: update view of hostname. Here is only EXAMPLE!
-        string hostname = String.Empty;
-
         try
         {
-            hostname = await _eraValidationService.GetHostByIp(ipv4Address);
+            validationResult.Hostname = await _eraValidationService.GetHostByIp(validationResult.IpAddress);
         }
+        
         catch (UnauthorizedAccessException e)
         {
-            _auditLogger.ExecuteWithAuditAsync(AuditType.NotFoundAntivirus, ipv4Address);
-            return Unauthorized(new { ipAddress = ipv4Address });
+            _auditLogger.ExecuteWithAuditAsync(AuditType.NotFoundAntivirus, validationResult);
+            return Unauthorized(new { ipAddress = validationResult.IpAddress });
         }
-
-        string username = String.Empty;
-        string domainName = String.Empty;
+        
         foreach (var domain in _ldapSettings.Domains)
         {
-            if (_domainService.IsHostnameInActiveDirectory(domain, hostname))
+            if (_domainService.IsHostnameInActiveDirectory(domain, validationResult.Hostname))
             {
-                domainName = domain.DomainName;
-                username = _domainService.GetUsernameFromHostname(domain, hostname);
+                validationResult.Domain = domain.DomainName;
+                validationResult.UserName = _domainService.GetUsernameFromHostname(domain, validationResult.Hostname);
             }
         }
 
-        if (string.IsNullOrEmpty(domainName))
+        if (string.IsNullOrEmpty(validationResult.Domain))
         {
-            _auditLogger.ExecuteWithAuditAsync(AuditType.AuthorizedAccess, ipv4Address, hostname, domainName);
-            return Unauthorized(new
-            {
-                message = "Hostname not found in any configured Active Directory domain.", ipAddress = ipv4Address,
-                Hostname = hostname
-            });
+            _auditLogger.ExecuteWithAuditAsync(AuditType.NotFoundDomain, validationResult);
+            validationFailResult.Message = "Hostname not found in any configured Active Directory domain.";
+            return Unauthorized(validationFailResult);
         }
 
-        _auditLogger.ExecuteWithAuditAsync(AuditType.AuthorizedAccess, ipv4Address, hostname, domainName);
-        return Ok(new { Username = username, IpAddress = ipv4Address, Hostname = hostname, Domain = domainName });
-    }
-
-    [HttpGet("records/")]
-    public async Task<ActionResult> GetRecords()
-    {
-        var records = await _auditService.GetAllAsync(0, Int32.MaxValue);
-        return Ok(records);
+        _auditLogger.ExecuteWithAuditAsync(AuditType.AuthorizedAccess, validationResult);
+        return Ok(validationResult);
     }
 }

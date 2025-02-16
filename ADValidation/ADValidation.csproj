@@ -8,8 +8,8 @@
 
     <ItemGroup>
         <PackageReference Include="AspNetCore.Proxy" Version="4.5.0" />
+        <PackageReference Include="AutoMapper" Version="14.0.0" />
         <PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.2" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.6" />
         <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.0-preview3.24332.3" />
         <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />

@@ -1,0 +1,26 @@
+@ADValidation_HostAddress = http://localhost:5001
+
+POST {{ADValidation_HostAddress}}/audit/search
+Accept: application/json
+Content-Type: application/json
+
+{
+  "filters": [
+    {
+      "type": "string",
+      "alias": "ipAddress",
+      "value": {
+        "input": "127.",
+        "operator": "contains"
+      },
+      "strict": false,
+      "starts": false,
+      "ends": false 
+    }
+  ],
+  "orderBy": "timestamp",
+  "orderByDir": "ASC",
+  "limit": 10,
+  "start": 0,
+  "search": "NotF"
+}

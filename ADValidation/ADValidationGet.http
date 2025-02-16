@@ -1,0 +1,4 @@
+@ADValidation_HostAddress = http://localhost:5001
+
+GET {{ADValidation_HostAddress}}/audit/
+Accept: application/json
