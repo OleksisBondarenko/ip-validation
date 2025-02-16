@@ -16,17 +16,16 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configure your AuditRecord entity if needed
         modelBuilder.Entity<AuditRecord>(entity =>
         {
             entity.HasKey(a => a.Id);
-            entity.Property(a => a.Data).IsRequired();
+            entity.Property(a => a.AuditData).IsRequired();
             entity.Property(a => a.Timestamp).IsRequired();
         });
+
+        modelBuilder.Entity<AuditRecord>()
+            .HasOne(ad => ad.AuditData)
+            .WithOne(ar => ar.AuditRecord)
+            .HasForeignKey<AuditRecord>(ar => ar.AuditDataId);
     }
-    
-    // protected override void OnConfiguring(DbContextOptionsBuilder  optionsBuilder)
-    // {
-    //     optionsBuilder.UseSqlite("Data Source=AuditDB.db");
-    // }
 }

@@ -17,7 +17,7 @@ public class AuditLoggerService
     public void ExecuteWithAuditAsync(string actionName, string ipAddress = "", string hostname = "", string domain = "")
 
     {
-        var auditData = new
+        var auditData = new AuditData()
         {
             IpAddress = ipAddress,
             Hostname = hostname,
@@ -28,7 +28,7 @@ public class AuditLoggerService
         var auditRecord = new AuditRecord()
         {
             Name = actionName,
-            Data = JsonSerializer.Serialize(auditData)
+            AuditData = auditData
         };
 
         _auditService.CreateAsync(auditRecord).Wait();

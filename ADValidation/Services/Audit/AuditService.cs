@@ -21,7 +21,7 @@ public class AuditService
     public async Task<AuditRecord> GetByIdAsync(Guid id)
     {
         return await _context.AuditRecords.FindAsync(id);
-    }
+    }`
 
     public async Task<IEnumerable<AuditRecord>> GetAllAsync(int page, int pageSize)
     {

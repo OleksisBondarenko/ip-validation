@@ -67,7 +67,6 @@ builder.Services.Configure<ERASettings>(builder.Configuration.GetSection("ERASet
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IPAddressService>();
 builder.Services.AddScoped<DomainService>();
-builder.Services.AddScoped<ValidationService>();
 
 // builder.Services.AddDbContext<AppDbContext>(options =>
 //     options.UseSqlServer()(builder.Configuration.GetConnectionString("DefaultConnection")));
