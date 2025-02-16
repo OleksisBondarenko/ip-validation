@@ -29,11 +29,11 @@ public class AuditController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<AuditRecordDTO>>> GetAuditRecords(
         [FromQuery] string? orderBy = "Timestamp", // Default sorting field
-        [FromQuery] string? orderByDir = "ASC", // Default sorting direction
+        [FromQuery] string? orderByDir = "DESC", // Default sorting direction
         [FromQuery] int limit = 10, // Default page size
         [FromQuery] int start = 0, // Default start index
         [FromQuery] int? entityList = null, // Optional entity list filter
-        [FromQuery] string? search = null) // Global search term
+        [FromQuery] string? search = null) // Global search term 
     {
         try
         {

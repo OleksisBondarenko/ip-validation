@@ -16,7 +16,7 @@ public class ValidateController : ControllerBase
     private readonly IPAddressService _ipAddressService;
     private readonly LDAPSettings _ldapSettings;
     private readonly AuditLoggerService _auditLogger;
-    
+
     public ValidateController(DomainService domainService, AuditService auditService, AuditLoggerService auditLogger,
         IPAddressService ipAddressService, EraValidationService eraValidationService,
         IOptions<LDAPSettings> ldapSettings)
@@ -26,19 +26,17 @@ public class ValidateController : ControllerBase
         _ldapSettings = ldapSettings.Value;
         _eraValidationService = eraValidationService;
         _auditLogger = auditLogger;
-        
     }
 
     [HttpGet]
     public async Task<ActionResult> Validate(
-        [FromQuery] string? isUsername, 
+        [FromQuery] string? isUsername,
         [FromQuery] string? isEset,
         [FromQuery] string? isSafetica)
     {
-        
         ValidationSuccessResult validationResult = new ValidationSuccessResult();
         ValidationFailResult validationFailResult = new ValidationFailResult();
-        
+
         string userIp = _ipAddressService.GetRequestIP();
         validationResult.IpAddress = _ipAddressService.ExtractIPv4(userIp);
 
@@ -53,13 +51,13 @@ public class ValidateController : ControllerBase
         {
             validationResult.Hostname = await _eraValidationService.GetHostByIp(validationResult.IpAddress);
         }
-        
+
         catch (UnauthorizedAccessException e)
         {
             _auditLogger.ExecuteWithAuditAsync(AuditType.NotFoundAntivirus, validationResult);
             return Unauthorized(new { ipAddress = validationResult.IpAddress });
         }
-        
+
         foreach (var domain in _ldapSettings.Domains)
         {
             if (_domainService.IsHostnameInActiveDirectory(domain, validationResult.Hostname))
