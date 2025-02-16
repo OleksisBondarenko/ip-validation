@@ -1,20 +1,8 @@
-using System.IO;
-using System.IO.Compression;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.RegularExpressions;
 using ADValidation.Decorators;
 using ADValidation.Models;
 using ADValidation.Models.ERA;
 using ADValidation.Services;
-using ADValidation.Utils;
 using AspNetCore.Proxy;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,11 +42,5 @@ app.UseStaticFiles();
 app.UseRouting();
 app.MapControllers()
     .WithOpenApi();
-
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.Migrate();
-}
 
 app.Run();

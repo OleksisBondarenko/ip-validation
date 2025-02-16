@@ -43,5 +43,6 @@ public class ApplicationDbContext : DbContext
             entity.Property(ar => ar.Name).HasMaxLength(200);
             entity.Property(ar => ar.Timestamp).IsRequired();
         });
+        
     }
 }
