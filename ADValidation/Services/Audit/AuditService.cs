@@ -17,18 +17,18 @@ public class AuditService
 
     public async Task CreateAsync(AuditRecord record)
     {
-        _context.AuditRecords.Add(record);
+        _context.AuditRecord.Add(record);
         await _context.SaveChangesAsync();
     }
 
     public async Task<AuditRecord> GetByIdAsync(Guid id)
     {
-        return await _context.AuditRecords.FindAsync(id);
+        return await _context.AuditRecord.FindAsync(id);
     }
 
     public async Task<IEnumerable<AuditRecord>> GetAllAsync(int page = 0, int pageSize = int.MaxValue)
     {
-        List<AuditRecord> allRecords = await _context.AuditRecords.Include(ar => ar.AuditData).ToListAsync();
+        List<AuditRecord> allRecords = await _context.AuditRecord.Include(ar => ar.AuditData).ToListAsync();
         return allRecords;
     }
     
@@ -40,7 +40,7 @@ public class AuditService
         int start,
         string search)
     {
-        var query = _context.AuditRecords
+        var query = _context.AuditRecord
             .Include(ar => ar.AuditData)
             .AsNoTracking()
             .AsQueryable();
@@ -223,16 +223,16 @@ public class AuditService
 
     public async Task UpdateAsync(AuditRecord record)
     {
-        _context.AuditRecords.Update(record);
+        _context.AuditRecord.Update(record);
         await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Guid id)
     {
-        var record = await _context.AuditRecords.FindAsync(id);
+        var record = await _context.AuditRecord.FindAsync(id);
         if (record != null)
         {
-            _context.AuditRecords.Remove(record);
+            _context.AuditRecord.Remove(record);
             await _context.SaveChangesAsync();
         }
     }

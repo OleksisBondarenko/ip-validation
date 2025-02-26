@@ -6,4 +6,5 @@ public class ValidationSuccessResult
     public string Hostname { get; set; } = String.Empty;
     public string UserName { get; set; } = String.Empty;
     public string Domain { get; set; } = String.Empty;
+    public string Message { get; set; } = string.Empty;
 }

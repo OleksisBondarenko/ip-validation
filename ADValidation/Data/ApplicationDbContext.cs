@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Sqlite;
 
 public class ApplicationDbContext : DbContext
 {
-    public DbSet<AuditRecord> AuditRecords { get; set; }
+    public DbSet<AuditRecord> AuditRecord { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)

@@ -7,14 +7,36 @@ namespace ADValidation.Services
 {
     public class DomainService
     {
-        private readonly ILogger<DomainService> _logger;
+        private readonly ILogger<DomainService> _logger;    
+        private readonly LDAPSettings _ldapSettings;
 
-        // Constructor with logger dependency injection
-        public DomainService(ILogger<DomainService> logger)
+
+        public DomainService(ILogger<DomainService> logger, IOptions<LDAPSettings> ldapSettings)
         {
             _logger = logger;
+            _ldapSettings = ldapSettings.Value;
+
         }
 
+        public string GetDomainFromHostname(string hostname)
+        {
+            try
+            {
+                foreach (var domain in _ldapSettings.Domains)
+                {
+                    if (IsHostnameInActiveDirectory(domain, hostname))
+                    {
+                        return domain.DomainName;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Hostname not found in any domains...");
+            }
+            
+            return  string.Empty;
+        }
         public string GetUsernameFromIp(LDAPDomain domain, string ipAddress)
         {
             try
@@ -204,7 +226,7 @@ namespace ADValidation.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error querying domain {DomainName} for hostname {Hostname}", domain.DomainName, hostname);
+                _logger.LogError(ex, "Error querying domain {DomainName} for hostname {Hostname}, possibly hostname doesn't exist in domain...", domain.DomainName, hostname);
                 return false;
             }
         }

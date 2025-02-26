@@ -7,7 +7,7 @@ public class AuditRecord
 {
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
-    public string Name { get; set; }
+    public string Name { get; set; } = String.Empty;
     public AuditData? AuditData { get; set; }
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }

@@ -10,6 +10,7 @@ public class AuditData
     public string Hostname { get; set; } = String.Empty;
     public string UserName { get; set; } = String.Empty;
     public string Domain { get; set; } = String.Empty;
+    public string Message { get; set; } = String.Empty;
     public Guid AuditRecordId { get; set; }
     public AuditRecord AuditRecord { get; set; } = null!;
 }

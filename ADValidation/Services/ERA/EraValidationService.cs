@@ -10,27 +10,36 @@ namespace ADValidation.Services;
 public class EraValidationService
 {
     private readonly ERASettings _eraSettings;
+    private readonly ILogger<EraValidationService> _logger;
 
-    public EraValidationService(IOptions<ERASettings> eraSettings)
+    public EraValidationService(IOptions<ERASettings> eraSettings, ILogger<EraValidationService> logger)
     {
         _eraSettings = eraSettings.Value;
+        _logger = logger;
     }
 
     public async Task<string> GetHostByIp(string ipAddress)
     {
         foreach (var connectionString in _eraSettings.EraDbConnections)
         {
-            string? hostName = await GetHostByIP(connectionString, ipAddress);
-            if (!string.IsNullOrEmpty(hostName))
+            try
             {
-                return hostName;
+                string? hostName = await GetHostByIP(connectionString, ipAddress);
+                if (!string.IsNullOrEmpty(hostName))
+                {
+                    return hostName;
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogError(ex.Message);
             }
         }
 
         throw new UnauthorizedAccessException("Provided IP address is not present in DB");
     }
     
-    private async Task<string?> GetHostByIP(string connectionString, string address)
+    private async Task<string> GetHostByIP(string connectionString, string address)
     {
         try
         {
@@ -38,9 +47,10 @@ public class EraValidationService
             var computerInfo = await GetComputerInfoByUuidAsync(connectionString, networkInfo.SourceUuid);
             return computerInfo.ComputerName;
         }
-        catch (AuthenticationException ex)
+        catch (UnauthorizedAccessException ex)
         {
-            return null;
+            _logger.LogError(ex, "Unauthorized Access " + ex.Message);
+            throw ex;
         }
 
     }
@@ -48,14 +58,14 @@ public class EraValidationService
 
     private async Task<NetworkInfo> GetNetworkInfoByIpAsync(string connectionString, string address)
     {
-        using (var connection = new SqlConnection(connectionString))
+        await using (var connection = new SqlConnection(connectionString))
         {
             await connection.OpenAsync();
             var command = new SqlCommand(
             "SELECT [Address], [Mac], [Occurred], [SourceUuid] FROM [tblf_network_ipaddresses_status] WHERE Address = @Address ORDER BY [Occurred] DESC", connection);
             command.Parameters.AddWithValue("@Address", address);
 
-            using (var reader = await command.ExecuteReaderAsync())
+           await using (var reader = await command.ExecuteReaderAsync())
             {
                 if (await reader.ReadAsync())
                 {
@@ -69,20 +79,20 @@ public class EraValidationService
                 }
             }
         }
-        
-        throw new UnauthorizedAccessException("Provided IP address is not present");
+
+        throw new UnauthorizedAccessException("Provided IP address is not present in DB");
     }
 
     private async Task<ComputersResult> GetComputerInfoByUuidAsync(string connectionString, byte[] uuid)
     {
-        using (var connection = new SqlConnection(connectionString))
+        await using (var connection = new SqlConnection(connectionString))
         {
             await connection.OpenAsync();
             var command = new SqlCommand(
                 "SELECT computer_name FROM [tbl_computers] WHERE computer_uuid = @Uuid", connection);
             command.Parameters.Add("@Uuid", SqlDbType.VarBinary).Value = uuid;
 
-            using (var reader = await command.ExecuteReaderAsync())
+            await using (var reader = await command.ExecuteReaderAsync())
             {
                 if (await reader.ReadAsync())
                 {

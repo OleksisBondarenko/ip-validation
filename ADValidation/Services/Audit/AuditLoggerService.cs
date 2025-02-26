@@ -23,13 +23,15 @@ public class AuditLoggerService
             UserName = validationResult.UserName,
             IpAddress = validationResult.IpAddress,
             Hostname = validationResult.Hostname,
-            Domain = validationResult.Domain,
+            Domain = validationResult.Domain,           
+            Message = validationResult.Message,
+
         };
 
         var auditRecord = new AuditRecord()
         {
             Name = actionName,
-            AuditData = auditData
+            AuditData = auditData,
         };
 
         _auditService.CreateAsync(auditRecord).Wait();
