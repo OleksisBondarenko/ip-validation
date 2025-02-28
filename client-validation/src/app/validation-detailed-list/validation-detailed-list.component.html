@@ -1,0 +1,7 @@
+<p>validation-detailed-list works!</p>
+
+@for (item of dataModels; track item.name) {
+  <li><span class="" style="padding-right: 0.5rem; display: inline-block;">{{ item.name }}</span> <span>{{item.id}}</span></li>
+} @empty {
+  <li>There are no items.</li>
+}
