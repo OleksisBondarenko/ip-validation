@@ -7,7 +7,7 @@
 /bazel-out
 
 # it's build from client.
-/wwwroot/browser
+/client-validation/browser
 
 # Node
 /node_modules
