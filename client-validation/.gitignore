@@ -6,6 +6,9 @@
 /out-tsc
 /bazel-out
 
+# it's build from client.
+/wwwroot/browser
+
 # Node
 /node_modules
 npm-debug.log

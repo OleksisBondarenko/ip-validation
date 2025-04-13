@@ -1,4 +1,21 @@
-export default interface AuditDataModel {
+
+
+export default interface AuditRecordModel {
   id: string;
-  name: string;
+  auditType: number,
+  auditTypeString: string,
+  auditData: AuditDataModel,
+  timeStamp: string,
+}
+
+export interface ResponseGetListAudit
+{
+  data: AuditRecordModel [],
+  totalCount: number,
+}
+export interface AuditDataModel {
+  ip: string;
+  ipAddress: string;
+  hostName: string;
+  domain: string;
 }
