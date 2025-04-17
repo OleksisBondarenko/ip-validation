@@ -1,6 +1,6 @@
 namespace ADValidation.Models.ERA;
 
-public class ComputersResult
+public class ComputerInfo
 {
     public byte [] ComputerUuid { get; set; }
     public string ComputerName { get; set; }

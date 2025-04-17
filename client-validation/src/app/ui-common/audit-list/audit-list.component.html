@@ -18,6 +18,15 @@
           </td>
         </ng-container>
 
+        <!-- Resource Column -->
+        <ng-container matColumnDef="resourceName">
+          <th mat-header-cell *matHeaderCellDef>Ресурс</th>
+          <td mat-cell *matCellDef="let record">
+            {{record.resourceName || 'N/A'}}
+          </td>
+        </ng-container>
+
+
         <!-- Timestamp Column -->
         <ng-container matColumnDef="timestamp">
           <th mat-header-cell *matHeaderCellDef>Час</th>

@@ -5,6 +5,10 @@
 
 SetupVSCodeOnlyCode.MSI/
 
+# build from angular
+ADValidation/wwwroot/3rdpartylicenses.txt
+ADValidation/wwwroot/browser/*
+
 *.db
 *.db-*
 

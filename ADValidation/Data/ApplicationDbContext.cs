@@ -39,8 +39,8 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(ar => ar.AuditData)
                 .WithOne(a => a.AuditRecord)
                 .HasForeignKey<AuditData>(a => a.AuditRecordId);
-
-            entity.Property(ar => ar.Name).HasMaxLength(200);
+                
+            // entity.Property(ar => ar.Name).HasMaxLength(200);
             entity.Property(ar => ar.Timestamp).IsRequired();
         });
         

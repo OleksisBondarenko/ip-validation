@@ -4,18 +4,26 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <!-- Use full path or ensure directory exists -->
+        <SpaRoot>$(MSBuildProjectDirectory)\..\client-validation\</SpaRoot>
+        <ExcludeAngularBuild>false</ExcludeAngularBuild>
+        <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+        <AngularBuildOutputPath>$(MSBuildProjectDirectory)\wwwroot\</AngularBuildOutputPath>
     </PropertyGroup>
 
+    <!-- Your existing PackageReferences -->
     <ItemGroup>
+        <!-- Your existing PackageReferences -->
         <PackageReference Include="AspNetCore.Proxy" Version="4.5.0" />
         <PackageReference Include="AutoMapper" Version="14.0.0" />
         <PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
+        <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.3.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.6" />
         <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.0-preview3.24332.3" />
         <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
@@ -25,13 +33,52 @@
         <PackageReference Include="System.DirectoryServices" Version="8.0.0" />
         <PackageReference Include="System.DirectoryServices.Protocols" Version="8.0.0" />
     </ItemGroup>
+    
+    <Target Name="ValidateAngularDirectory" BeforeTargets="Build">
+        <Error Condition="!Exists('$(SpaRoot)')"
+               Text="Angular directory $(SpaRoot) does not exist. Please create it and initialize an Angular project." />
+        <Error Condition="!Exists('$(SpaRoot)package.json')"
+               Text="package.json not found in $(SpaRoot). Is this an Angular project directory?" />
+    </Target>
 
-    <ItemGroup>
-      <TypeScriptCompile Include="wwwroot\scripts\example.tsx" />
-    </ItemGroup>
-	
-	<ItemGroup>
-		<None Include="wwwroot\*" />
-	</ItemGroup>
+    <Target Name="EnsureNodeEnv" BeforeTargets="Build">
+        <!-- Check Node.js is installed -->
+        <Exec Command="node --version" ContinueOnError="true">
+            <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+        </Exec>
+        <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build this project" />
+
+        <!-- Install dependencies -->
+        <Exec Command="npm install" WorkingDirectory="$(SpaRoot)"
+              Condition="Exists('$(SpaRoot)')" />
+    </Target>
+
+    <Target Name="BuildAngular" AfterTargets="Build" Condition="Exists('$(SpaRoot)')">
+        <!-- Clean wwwroot first -->
+        <RemoveDir Directories="$(AngularBuildOutputPath)" />
+
+        <!-- Build Angular directly to wwwroot -->
+        <Exec Command="npm run build -- --output-path $(AngularBuildOutputPath)"
+              WorkingDirectory="$(SpaRoot)"
+              Condition="Exists('$(SpaRoot)package.json')" />
+    </Target>
+
+    <Target Name="PublishAngular" BeforeTargets="Build" Condition=" '$(ExcludeAngularBuild)' == 'false' And Exists('$(SpaRoot)') ">
+        <!-- Production build directly to wwwroot -->
+        <Exec Command="npm run build -- --output-path $(AngularBuildOutputPath) "
+              WorkingDirectory="$(SpaRoot)"
+              Condition="Exists('$(SpaRoot)package.json')" />
+
+        <!-- Ensure wwwroot is included in publish -->
+        <ItemGroup>
+            <Content Include="wwwroot\**" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="CleanAngular" BeforeTargets="Clean">
+        <RemoveDir Directories="$(SpaRoot)dist" Condition="Exists('$(SpaRoot)')" />
+        <RemoveDir Directories="$(SpaRoot)node_modules" Condition="Exists('$(SpaRoot)')" />
+<!--        <RemoveDir Directories="wwwroot" />-->
+    </Target>
 
 </Project>

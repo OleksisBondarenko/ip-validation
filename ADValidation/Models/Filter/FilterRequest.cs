@@ -1,3 +1,5 @@
+using ADValidation.Enums;
+
 namespace ADValidation.Models.Filter;
 
 public class FilterRequest

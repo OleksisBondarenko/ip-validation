@@ -44,14 +44,14 @@ public class AuditService
             .Include(ar => ar.AuditData)
             .AsNoTracking()
             .AsQueryable();
-
+        
         // Apply global search
         if (!string.IsNullOrEmpty(search))
         {
             query = query.Where(ar =>
-                ar.Name.Contains(search) ||
-                ar.AuditData.IpAddress.Contains(search) ||
-                ar.AuditData.Hostname.Contains(search));
+                EF.Functions.Like(ar.AuditData.IpAddress, $"%{search}%") ||
+                EF.Functions.Like(ar.AuditData.Domain, $"%{search}%") ||
+                EF.Functions.Like(ar.AuditData.Hostname, $"%{search}%"));
         }
 
         // Apply filters
@@ -73,6 +73,44 @@ public class AuditService
         query = query.Skip(start).Take(limit);
 
         return await query.ToListAsync();
+    }
+
+    public async Task<int> GetTotalFilteredAsync(
+        List<Filter> filters,
+        string orderBy,
+        string orderByDir,
+        string search)
+    {
+        var query = _context.AuditRecord
+            .Include(ar => ar.AuditData)
+            .AsNoTracking()
+            .AsQueryable();
+
+        // Apply global search
+        if (!string.IsNullOrEmpty(search))
+        {
+            query = query.Where(ar =>
+                EF.Functions.Like(ar.AuditData.IpAddress, $"%{search}%") ||
+                EF.Functions.Like(ar.AuditData.Domain, $"%{search}%") ||
+                EF.Functions.Like(ar.AuditData.Hostname, $"%{search}%"));
+        }
+
+        // Apply filters
+        if (filters != null && filters.Any())
+        {
+            foreach (var filter in filters)
+            {
+                query = ApplyFilter(query, filter);
+            }
+        }
+
+        // Apply sorting
+        if (!string.IsNullOrEmpty(orderBy))
+        {
+            query = ApplySorting(query, orderBy, orderByDir);
+        }
+
+        return await query.CountAsync();
     }
 
     private IQueryable<AuditRecord> ApplyFilter(IQueryable<AuditRecord> query, Filter filter)
@@ -208,13 +246,13 @@ public class AuditService
                     "DESC" => query.OrderByDescending(ar => ar.Timestamp),
                     _ => throw new ArgumentException($"Unsupported sorting direction: {orderByDir}")
                 };
-            case "name":
-                return orderByDir.ToUpper() switch
-                {
-                    "ASC" => query.OrderBy(ar => ar.Name),
-                    "DESC" => query.OrderByDescending(ar => ar.Name),
-                    _ => throw new ArgumentException($"Unsupported sorting direction: {orderByDir}")
-                };
+            // case "name":
+            //     return orderByDir.ToUpper() switch
+            //     {
+            //         "ASC" => query.OrderBy(ar => ar.Name),
+            //         "DESC" => query.OrderByDescending(ar => ar.Name),
+            //         _ => throw new ArgumentException($"Unsupported sorting direction: {orderByDir}")
+            //     };
             // Add more cases for other sortable fields
             default:
                 throw new ArgumentException($"Unsupported orderBy field: {orderBy}");

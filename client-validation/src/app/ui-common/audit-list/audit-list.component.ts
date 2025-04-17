@@ -20,5 +20,5 @@ import AuditRecordModel from "../../models/auditDataModel";
 })
 export class AuditListComponent {
   @Input() auditList: AuditRecordModel[] = [];
-  displayedColumns: string[] = ['auditType', 'timestamp', 'ip', "domain" ,'host'];
+  displayedColumns: string[] = ['auditType', 'resourceName', 'timestamp', 'ip', "domain" ,'host'];
 }

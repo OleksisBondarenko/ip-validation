@@ -14,7 +14,7 @@ public class IPAddressService
 
     public string GetRequestIP(bool tryUseXForwardHeader = true)
     {
-        string ip = null;
+        string ip = string.Empty;
 
         // todo support new "Forwarded" header (2014) https://en.wikipedia.org/wiki/X-Forwarded-For
 
@@ -51,7 +51,7 @@ public class IPAddressService
         Match match = Regex.Match(input, ipv4Pattern);
 
         // Return the matched IPv4 address or null if not found
-        return match.Success ? match.Value : null;
+        return match.Success ? match.Value : string.Empty;
     }
     
     private T GetHeaderValueAs<T>(string headerName, IHttpContextAccessor _httpContextAccessor)

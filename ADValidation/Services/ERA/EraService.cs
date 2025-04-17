@@ -1,4 +1,5 @@
 using System.Data;
+using System.Net;
 using System.Security.Authentication;
 using Microsoft.Data.SqlClient;
 using ADValidation.Models.ERA;
@@ -7,12 +8,12 @@ using Microsoft.Extensions.Options;
 
 namespace ADValidation.Services;
 
-public class EraValidationService
+public class EraService
 {
     private readonly ERASettings _eraSettings;
-    private readonly ILogger<EraValidationService> _logger;
+    private readonly ILogger<EraService> _logger;
 
-    public EraValidationService(IOptions<ERASettings> eraSettings, ILogger<EraValidationService> logger)
+    public EraService(IOptions<ERASettings> eraSettings, ILogger<EraService> logger)
     {
         _eraSettings = eraSettings.Value;
         _logger = logger;
@@ -87,32 +88,32 @@ public class EraValidationService
 
     public async Task<ComputerAggregatedData> GetComputerAggregatedData(string ipAddress)
     {
-        // var tasks = _eraSettings.EraDbConnections.Select(connectionString => 
-        //     GetComputerAggregatedDataSafe(connectionString, ipAddress)).ToList();
+        var tasks = _eraSettings.EraDbConnections.Select(connectionString =>
+            GetComputerAggregatedDataSafe(connectionString, ipAddress)).ToList();
 
-        // while (tasks.Any())
-        // {
-        //     var completedTask = await Task.WhenAny(tasks);
-        //     tasks.Remove(completedTask);
-        //
-        //     var result = await completedTask;
-        //     if (result != null)
-        //     {
-        //         return result;
-        //     }
-        // }
-
-        foreach (var connectionString in _eraSettings.EraDbConnections)
+        while (tasks.Any())
         {
-            try
+            var completedTask = await Task.WhenAny(tasks);
+            tasks.Remove(completedTask);
+        
+            var result = await completedTask;
+            if (result != null)
             {
-                return await GetComputerAggregatedData(connectionString, ipAddress);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogError(ex.Message);
+                return result;
             }
         }
+
+        // foreach (var connectionString in _eraSettings.EraDbConnections)
+        // {
+        //     try
+        //     {
+        //         return await GetComputerAggregatedData(connectionString, ipAddress);
+        //     }
+        //     catch (UnauthorizedAccessException ex)
+        //     {
+        //         _logger.LogError(ex.Message);
+        //     }
+        // }
         throw new UnauthorizedAccessException("Provided IP address is not present in DB");
     }
 
@@ -128,6 +129,10 @@ public class EraValidationService
             _logger.LogError(ex, $"Unauthorized access on connection: {connectionString}");
             return null;
         }
+        catch (SqlException ex)
+        {    _logger.LogError(ex, $"SqlException: {connectionString}");
+            return null;
+        }
     }
 
     private async Task<ComputerAggregatedData> GetComputerAggregatedData(string connectionString, string address)
@@ -136,7 +141,7 @@ public class EraValidationService
         {
             await connection.OpenAsync();
             var command = new SqlCommand(
-                $"SELECT tbl_computers.computer_id, [computer_uuid], [computer_name], [computer_connected], [ip_address] " +
+                $"SELECT tbl_computers.computer_id, tbl_computers.computer_uuid, tbl_computers.computer_name, tbl_computers_aggr.computer_connected, tbl_computers_aggr.ip_address " +
                         "FROM [tbl_computers_aggr] " + 
                         "INNER JOIN tbl_computers ON tbl_computers.computer_id = tbl_computers_aggr.computer_id " +
                         "WHERE ip_address = @ip_address " +
@@ -161,7 +166,7 @@ public class EraValidationService
             }
         }
 
-        throw new UnauthorizedAccessException("Provided IP address is not present in DB");
+        throw new UnauthorizedAccessException($"Provided IP address is not present in DB {address}");
     }
 
     private async Task<ComputerInfo> GetComputerInfoByUuidAsync(string connectionString, byte[] uuid)

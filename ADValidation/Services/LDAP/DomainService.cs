@@ -1,4 +1,5 @@
 using System.DirectoryServices.Protocols;
+using ADValidation.Helpers.LDAP;
 using ADValidation.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,7 +25,8 @@ namespace ADValidation.Services
             {
                 foreach (var domain in _ldapSettings.Domains)
                 {
-                    if (IsHostnameInActiveDirectory(domain, hostname))
+                    // CHECKS only prefix...
+                    if (IsHostnameInActiveDirectory(domain.BaseDN, hostname))
                     {
                         return domain.DomainName;
                     }
@@ -37,6 +39,7 @@ namespace ADValidation.Services
             
             return  string.Empty;
         }
+        
         public string GetUsernameFromIp(LDAPDomain domain, string ipAddress)
         {
             try
@@ -229,6 +232,12 @@ namespace ADValidation.Services
                 _logger.LogError(ex, "Error querying domain {DomainName} for hostname {Hostname}, possibly hostname doesn't exist in domain...", domain.DomainName, hostname);
                 return false;
             }
+        }
+
+        private bool IsHostnameInActiveDirectory(string baseDN, string hostname)
+        {
+            string domainSufix = LdapParser.ParseLdapDomain(baseDN);
+            return hostname.EndsWith(domainSufix);
         }
 
     }

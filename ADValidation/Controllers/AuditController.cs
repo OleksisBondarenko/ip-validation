@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 namespace ADValidation.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/v1/[controller]")]
 public class AuditController : ControllerBase
 {
     private readonly ILogger<AuditController> _logger;
@@ -28,37 +28,70 @@ public class AuditController : ControllerBase
 
     // GET: /Audit (Get all audit records with advanced filtering, sorting, and pagination)
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<AuditRecordDTO>>> GetAuditRecords(
+    public async Task<ActionResult<IEnumerable<ResponseGetListAudit>>> GetAuditRecords(
         [FromQuery] string? orderBy = "Timestamp", // Default sorting field
         [FromQuery] string? orderByDir = "DESC", // Default sorting direction
-        [FromQuery] int limit = 10, // Default page size
-        [FromQuery] int start = 0, // Default start index
-        [FromQuery] int? entityList = null, // Optional entity list filter
-        [FromQuery] string? search = null) // Global search term 
+        [FromQuery] int? limit = 10, // Default page size
+        [FromQuery] int? start = 0, // Default start index
+        [FromQuery] string? search = null, // Global search term 
+        [FromQuery] string? auditType = null,
+        [FromQuery] string? timeAfter = null,
+        [FromQuery] string? timeBefore = null
+        ) // Global search term 
     {
         try
         {
             // Convert query parameters to a filter request
             var request = new FilterRequest()
             {
+                Filters = new List<Filter>(),
                 OrderBy = orderBy,
                 OrderByDir = orderByDir,
-                Limit = limit,
-                Start = start,
+                Limit = limit.Value,
+                Start = start.Value,
                 Search = search
             };
 
-            // Apply entity list filter if provided
-            if (entityList.HasValue)
+            // Apply auditType filter if provided
+            if (!string.IsNullOrEmpty(auditType))
             {
                 request.Filters.Add(new Filter
                 {
                     Type = "number",
-                    Alias = "EntityList",
-                    Value = new FilterValue { Input = entityList.Value.ToString() }
+                    Alias = "AuditType",
+                    Value = new FilterValue { Input = auditType }
+                });
+            }
+            
+            // Apply timeAfter filter if provided
+            if (!string.IsNullOrEmpty(timeAfter))
+            {
+                request.Filters.Add(new Filter
+                {
+                    Type = "date",
+                    Alias = "TimeAfter",
+                    Value = new FilterValue { Input = timeAfter }
+                });
+            }
+            
+            // Apply timeBefore filter if provided
+            if (!string.IsNullOrEmpty(timeBefore))
+            {
+                request.Filters.Add(new Filter
+                {
+                    Type = "date",
+                    Alias = "TimeBefore",
+                    Value = new FilterValue { Input = timeBefore }
                 });
             }
 
+            int totalRecords = await _auditService.GetTotalFilteredAsync(
+                request.Filters,
+                request.OrderBy,
+                request.OrderByDir,
+                request.Search
+                );
+            
             var auditRecords = await _auditService.GetAllFilteredAsync(
                 request.Filters,
                 request.OrderBy,
@@ -69,7 +102,13 @@ public class AuditController : ControllerBase
             );
 
             var auditRecordDTOs = auditRecords.Select(_auditMapper.MapToAuditDataDTO);
-            return Ok(auditRecordDTOs);
+            var resp = new ResponseGetListAudit
+            {
+                Data = auditRecordDTOs,
+                TotalCount = totalRecords
+            };
+            
+            return Ok(resp);
         }
         catch (Exception ex)
         {
@@ -78,11 +117,12 @@ public class AuditController : ControllerBase
         }
     }
     
+    
     [HttpPost("search")] // Use POST for complex filtering
     public async Task<ActionResult<IEnumerable<AuditRecordDTO>>> GetAuditRecords([FromBody] FilterRequest request)
     {
         try
-        {
+        { 
             // Apply filtering, sorting, and pagination
             var auditRecords = await _auditService.GetAllFilteredAsync(
                 request.Filters,
@@ -104,4 +144,10 @@ public class AuditController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    public class ResponseGetListAudit
+    {
+        public IEnumerable<AuditRecordDTO> Data { get; set; }
+        public int TotalCount { get; set; }
+    } 
 }

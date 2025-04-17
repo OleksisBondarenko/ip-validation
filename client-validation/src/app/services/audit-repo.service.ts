@@ -14,12 +14,12 @@ export class AuditRepoService {
   }
 
   getListAudit (query: string = "") {
-    return this.apiService.get<ResponseGetListAudit>(`audit${query}`);
+    return this.apiService.get<ResponseGetListAudit>(`api/v1/audit${query}`);
   }
 
   getListAuditGet () {
     return this.apiService.post<AuditRecordModel []>(
-      `audit/search`,
+      `api/v1/audit/search`,
       {
         limit: 100
       });

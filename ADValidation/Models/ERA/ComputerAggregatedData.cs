@@ -18,6 +18,9 @@ public class ComputerAggregatedData
 
     [DisplayName("ip_address")]
     public string IpAddress { get; set; } // IpV4address {0-255}.{0-255}.{0-255}.{0-255} or IpV6 extremely rare
+    
+    [DisplayName("domain")]
+    public string Domain { get; set; } // domain
 
     public ComputerAggregatedData ()
     {
