@@ -11,6 +11,6 @@ public class AuditRecord
     public AuditType AuditType { get; set; } = AuditType.NotFound;
     [StringLength(32)]
     public string ResourceName { get; set; } = string.Empty;
-    public AuditData? AuditData { get; set; }
+    public AuditData? AuditData { get; set; }   
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }
