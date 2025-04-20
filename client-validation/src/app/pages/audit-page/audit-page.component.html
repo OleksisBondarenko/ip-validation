@@ -1,33 +1,16 @@
 <div class="audit-page-container">
   <div class="search-controls">
-<!--    <div class="search-box">-->
-<!--      <input type="text"-->
-<!--             [(ngModel)]="searchTerm"-->
-<!--             (keyup.enter)="onSearch()"-->
-<!--             placeholder="Пошук серед записів...">-->
-<!--      <button (click)="onSearch()">Пошук</button>-->
-<!--    </div>-->
 
-<!--    <div class="pagination-controls">-->
-<!--      <select [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()">-->
-<!--        <option value="5">5 на сторінку</option>-->
-<!--        <option value="10">10 на сторінку</option>-->
-<!--        <option value="25">25 на сторінку</option>-->
-<!--        <option value="50">50 на сторінку</option>-->
-<!--      </select>-->
-<!--      <div>загалом {{this.totalItems}}</div>-->
-<!--    </div>-->
   </div>
 
   @if (isLoading) {
-  <div class="loading-indicator" *ngIf="isLoading">
-    <mat-spinner diameter="40"></mat-spinner>
-    <span>Завантаження...</span>
-  </div>
-  } @else {
-  <div class="list-wrapper">
-    <app-audit-list></app-audit-list>
-  </div>
-
-  }
+    <div class="loading-indicator" *ngIf="isLoading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Завантаження...</span>
+    </div>
+    } @else {
+      <div class="list-wrapper">
+        <app-audit-list></app-audit-list>
+      </div>
+    }
 </div>

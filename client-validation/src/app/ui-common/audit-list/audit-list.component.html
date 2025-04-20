@@ -1,10 +1,11 @@
-<!--<mat-card  class="table-container">-->
-<!--  <mat-card-header>-->
-<!--    <mat-card-title>Аудит</mat-card-title>-->
-<!--    <mat-card-subtitle>Показано {{auditList.length}} записів</mat-card-subtitle>-->
-<!--  </mat-card-header>-->
-  <hr>
-<!--  <mat-card-content class="table">-->
+<app-filter
+  [filterConfig]="filterConfig"
+  (filterApply)="onFilterApply()"
+  (filterChanged)="onFilterChanged($event)"
+  (filterReset)="onFilterReset()">
+</app-filter>
+
+<hr>
     @if (dataSource) {
       <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
         <!-- Audit Type Column -->
@@ -68,29 +69,12 @@
                      [pageSizeOptions]="pageSizes"
                      [length]="totalData"
                      showFirstLastButtons
-                     (page)="onUpdate($event)"
                      aria-label="Select page of periodic elements">
       </mat-paginator>
 
-
-<!--      <div class="pagination" *ngIf="totalItems > itemsPerPage && !isLoading">-->
-<!--        <button [disabled]="currentPage === 1"-->
-<!--                (click)="onPageChange(currentPage - 1)">-->
-<!--          Минула сторінка-->
-<!--        </button>-->
-
-<!--        <span>Сторінка {{currentPage}} з {{totalPages()}}</span>-->
-
-<!--        <button [disabled]="currentPage * itemsPerPage >= totalItems"-->
-<!--                (click)="onPageChange(currentPage + 1)">-->
-<!--          Наступна сторінка-->
-<!--        </button>-->
-<!--      </div>-->
     } @else {
       <div class="no-records">
         <mat-icon>info</mat-icon>
         <p>Записи не знайдено...</p>
       </div>
     }
-<!--  </mat-card-content>-->
-<!--</mat-card>-->

@@ -123,12 +123,24 @@ public class AuditService
             case "string":
                 query = ApplyStringFilter(query, filter);
                 break;
+            case "int":
+                query = ApplyStringFilter(query, filter);
+                break;
             // Add more filter types as needed
             default:
                 throw new ArgumentException($"Unsupported filter type: {filter.Type}");
         }
 
         return query;
+    }
+    
+    private IQueryable<AuditRecord> ApplyIntFilter(IQueryable<AuditRecord> query, Filter filter)
+    {
+        return filter.Alias.ToLower() switch
+        {
+            "actiontype" => ApplyIpAddressFilter(query, filter),
+            _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
+        };
     }
     
     private IQueryable<AuditRecord> ApplyStringFilter(IQueryable<AuditRecord> query, Filter filter)
@@ -138,6 +150,32 @@ public class AuditService
             "ipaddress" => ApplyIpAddressFilter(query, filter),
             "hostname" => ApplyHostnameFilter(query, filter), 
             "domain" => ApplyDomainFilter(query, filter), 
+            "resourcename" => ApplyResourceFilter(query, filter), 
+            _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
+        };
+    }
+    
+    private IQueryable<AuditRecord> ApplyAuditTypeFilter(IQueryable<AuditRecord> query, Filter filter)
+    {
+        // Ensure the filter value is not null or empty
+        if (string.IsNullOrEmpty(filter.Value.Input))
+        {
+            throw new ArgumentException("Filter value for IP address cannot be null or empty.");
+        }
+
+        // Get the filter value as a string
+        bool isValid = int.TryParse(filter.Value.Input, out int value);
+
+        if (!isValid)
+        {
+            throw new ArgumentException($"Unsupported int field: {filter.Alias}");
+        }
+        // Apply the filter based on the alias
+        return filter.Alias.ToLower() switch
+        {
+            "audittype" => query.Where(ar =>
+                ar.AuditData != null && // Ensure AuditData is not null
+                ar.AuditType.CompareTo(value) == 0 ),
             _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
         };
     }
@@ -207,6 +245,28 @@ public class AuditService
             _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
         };
     }
+    
+    private IQueryable<AuditRecord> ApplyResourceFilter(IQueryable<AuditRecord> query, Filter filter)
+    {
+        // Ensure the filter value is not null or empty
+        if (string.IsNullOrEmpty(filter.Value.Input))
+        {
+            throw new ArgumentException("Filter value for resource cannot be null or empty.");
+        }
+
+        // Get the filter value as a string
+        var value = filter.Value.Input;
+
+        // Apply the filter based on the alias
+        return filter.Alias.ToLower() switch
+        {
+            "resourcename" => query.Where(ar =>
+                ar.AuditData != null && // Ensure AuditData is not null
+                !string.IsNullOrEmpty(ar.ResourceName) && // Ensure IpAddress is not null
+                ar.ResourceName.Contains(value)), // Case-insensitive search
+            _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
+        };
+    }
 
     private IQueryable<AuditRecord> ApplyDateFilter(IQueryable<AuditRecord> query, Filter filter)
     {
@@ -244,6 +304,35 @@ public class AuditService
                 {
                     "ASC" => query.OrderBy(ar => ar.Timestamp),
                     "DESC" => query.OrderByDescending(ar => ar.Timestamp),
+                    _ => throw new ArgumentException($"Unsupported sorting direction: {orderByDir}")
+                };
+            
+            case "resourcename":
+                return orderByDir.ToUpper() switch
+                {
+                    "ASC" => query.OrderBy(ar => ar.ResourceName),
+                    "DESC" => query.OrderByDescending(ar => ar.ResourceName),
+                    _ => throw new ArgumentException($"Unsupported sorting direction: {orderByDir}")
+                };
+            case "domain":
+                return orderByDir.ToUpper() switch
+                {
+                    "ASC" => query.OrderBy(ar => ar.AuditData.Domain),
+                    "DESC" => query.OrderByDescending(ar => ar.AuditData.Domain),
+                    _ => throw new ArgumentException($"Unsupported sorting direction: {orderByDir}")
+                };
+            case "ipaddress":
+                return orderByDir.ToUpper() switch
+                {
+                    "ASC" => query.OrderBy(ar => ar.AuditData.IpAddress),
+                    "DESC" => query.OrderByDescending(ar => ar.AuditData.IpAddress),
+                    _ => throw new ArgumentException($"Unsupported sorting direction: {orderByDir}")
+                };
+            case "hostname":
+                return orderByDir.ToUpper() switch
+                {
+                    "ASC" => query.OrderBy(ar => ar.AuditData.Hostname),
+                    "DESC" => query.OrderByDescending(ar => ar.AuditData.Hostname),
                     _ => throw new ArgumentException($"Unsupported sorting direction: {orderByDir}")
                 };
             // case "name":

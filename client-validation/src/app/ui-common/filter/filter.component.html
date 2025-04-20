@@ -1,0 +1,84 @@
+<!-- filter.component.html -->
+<form [formGroup]="filterForm" class="filter-container">
+  <div class="filter-fields">
+    <ng-container *ngFor="let config of filterConfig">
+      <div class="filter-field" [ngSwitch]="config.type">
+        <!-- Text Input -->
+        <mat-form-field *ngSwitchCase="'text'" appearance="outline">
+          <mat-label>{{ config.label }}</mat-label>
+          <input matInput [formControlName]="config.key">
+        </mat-form-field>
+
+        <!-- Select Input -->
+        <mat-form-field *ngSwitchCase="'select'" appearance="outline">
+          <mat-label>{{ config.label }}</mat-label>
+          <mat-select [formControlName]="config.key">
+            <mat-option *ngFor="let option of config.options" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+
+<!--        &lt;!&ndash; Single Date Picker &ndash;&gt;-->
+<!--        <mat-form-field *ngSwitchCase="'date'" appearance="outline">-->
+<!--          <mat-label>{{ config.label }}</mat-label>-->
+<!--          <input matInput [matDatepicker]="picker" [formControlName]="config.key">-->
+<!--          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>-->
+<!--          <mat-datepicker #picker></mat-datepicker>-->
+<!--        </mat-form-field>-->
+
+
+        <!-- Date Range Picker -->
+<!--        <div *ngSwitchCase="'date'" class="date-range">-->
+<!--          <mat-form-field appearance="outline">-->
+<!--            <mat-label>{{ config.label }} From</mat-label>-->
+<!--            <input matInput  [matDatepicker]="startPicker" formControlName="{{config.key}}_from">-->
+<!--            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>-->
+<!--            <mat-datepicker #startPicker></mat-datepicker>-->
+<!--          </mat-form-field>-->
+
+<!--          <mat-form-field appearance="outline">-->
+<!--            <mat-label>{{ config.label }} To</mat-label>-->
+<!--            <input matInput [matDatepicker]="endPicker" formControlName="{{config.key}}_to">-->
+<!--            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>-->
+<!--            <mat-datepicker #endPicker></mat-datepicker>-->
+<!--          </mat-form-field>-->
+<!--        </div>-->
+
+        <div *ngSwitchCase="'date1'" class="date-range">
+          <mat-form-field>
+            <mat-label>Enter a date range</mat-label>
+            <mat-date-range-input [rangePicker]="picker">
+              <input matStartDate formControlName="{{config.key}}_from" placeholder="Start date">
+              <input matEndDate formControlName="{{config.key}}_to" placeholder="End date">
+            </mat-date-range-input>
+            <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+
+            @if (filterForm.controls[config.key + "_from"].hasError('matStartDateInvalid')) {
+              <mat-error>Invalid start date</mat-error>
+            }
+            @if (filterForm.controls[config.key + "_to"].hasError('matEndDateInvalid')) {
+              <mat-error>Invalid end date</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+
+    </ng-container>
+  </div>
+
+  <div class="filter-actions">
+    <button mat-button color="ok" type="button" (click)="applyFilters()">
+      Apply filters
+    </button>
+  </div>
+
+  <div class="filter-actions">
+    <button mat-button color="warn" type="button" (click)="resetFilters()">
+      Reset Filters
+    </button>
+  </div>
+</form>

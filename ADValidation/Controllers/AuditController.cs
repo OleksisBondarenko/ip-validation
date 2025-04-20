@@ -123,6 +123,13 @@ public class AuditController : ControllerBase
     {
         try
         { 
+            int totalRecords = await _auditService.GetTotalFilteredAsync(
+                request.Filters,
+                request.OrderBy,
+                request.OrderByDir,
+                request.Search
+            );
+            
             // Apply filtering, sorting, and pagination
             var auditRecords = await _auditService.GetAllFilteredAsync(
                 request.Filters,
@@ -136,7 +143,12 @@ public class AuditController : ControllerBase
             // Map to DTOs
             var auditRecordDTOs = auditRecords.Select(_auditMapper.MapToAuditDataDTO);
 
-            return Ok(auditRecordDTOs);
+            var resp = new ResponseGetListAudit
+            {
+                Data = auditRecordDTOs,
+                TotalCount = totalRecords
+            };
+            return Ok(resp);
         }
         catch (Exception ex)
         {

@@ -3,10 +3,12 @@ import { CommonModule, DatePipe } from '@angular/common';
 import {MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import AuditRecordModel, {ResponseGetListAudit} from "../../models/auditDataModel";
+import AuditRecordModel, {ResponseGetListAudit} from "../../models/auditData.model";
 import {MatPaginator, MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {AuditRepoService} from "../../services/audit-repo.service";
 import {catchError, from, map, Observable, startWith, switchMap} from "rxjs";
+import {FilterComponent, FilterConfig} from "../filter/filter.component";
+import {Filter, FilterRequest} from "../../models/filter.model";
 
 @Component({
   selector: 'app-audit-list',
@@ -17,12 +19,65 @@ import {catchError, from, map, Observable, startWith, switchMap} from "rxjs";
     MatCardModule,
     MatIconModule,
     MatPaginatorModule,
-    DatePipe
+    DatePipe,
+    FilterComponent
   ],
   templateUrl: './audit-list.component.html',
   styleUrls: ['./audit-list.component.scss']
 })
 export class AuditListComponent implements OnInit, AfterViewInit {
+  filterConfig: FilterConfig [] = [
+    {
+      type: 'select',
+      key: 'auditTypeString',
+      label: 'Action Type',
+      options: [
+        { value: '1', label: 'ok' },
+        { value: '2', label: 'NotFound' },
+        { value: '3', label: 'NotFoundEra' },
+        { value: '4', label: 'NotFoundDomain' },
+      ]
+    },
+    {
+      type: 'text',
+      key: 'resourceName',
+      label: 'Resource Name'
+    },
+    {
+      type: 'date',
+      key: 'timestamp',
+      label: 'Date Range'
+    },
+    {
+      type: 'text',
+      key: 'ipAddress',
+      label: 'IP Address'
+    },
+    {
+      type: 'select',
+      key: 'domain',
+      label: 'Domain',
+      options: [
+        { value: 'localhost', label: 'Localhost' },
+        { value: 'test.com', label: 'Test Domain' }
+      ]
+    }
+  ];
+
+  onFilterApply () {
+    this.updateUI();
+  }
+  onFilterChanged(filters: any[]) {
+    this.currentFilters = filters;
+  }
+
+  onFilterReset() {
+    this.currentFilters = [];
+    this.updateUI();
+
+  }
+
+  currentFilters: Filter [] = [];
   pageSizes = [5, 10, 20];
   isLoading = false;
   totalData = 0;
@@ -41,59 +96,50 @@ export class AuditListComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
 
-    this.paginator.page
-      .pipe(
-        startWith({}),
-        switchMap(() => {
-          this.isLoading = true;
-          return this.loadData(
-            this.paginator.pageIndex,
-            this.paginator.pageSize
-          ).pipe(catchError((e) => from([])));
-        }),
-        map((listData) => {
-          if (listData == null) return [];
-          this.totalData = listData.totalCount;
-          this.isLoading = false;
-          return listData.data;
-        })
-      )
-      .subscribe((listData) => {
-        this.listData = listData;
-        this.dataSource = new MatTableDataSource<AuditRecordModel>(this.listData);
-      });
+   this.updateUI();
    }
 
-  loadData(pageIndex: number = 1, itemsPerPage: number = 10,  searchTerm: string = ""): Observable<ResponseGetListAudit> {
-    const query = `?search=${searchTerm}&limit=${itemsPerPage}&start=${(pageIndex * itemsPerPage)}`;
+   updateUI () {
+     this.paginator.page
+       .pipe(
+         startWith({}),
+         switchMap(() => {
+           this.isLoading = true;
+           return this.loadData(
+             this.paginator.pageIndex,
+             this.paginator.pageSize
+           ).pipe(catchError((e) => from([])));
+         }),
+         map((listData) => {
+           if (listData == null) return [];
+           this.totalData = listData.totalCount;
+           this.isLoading = false;
+           return listData.data;
+         })
+       )
+       .subscribe((listData) => {
+         this.listData = listData;
+         this.dataSource = new MatTableDataSource<AuditRecordModel>(this.listData);
+       });
+   }
 
-    return this.auditRepo.getListAudit(query);
+  // loadData(pageIndex: number = 1, itemsPerPage: number = 10,  searchTerm: string = ""): Observable<ResponseGetListAudit> {
+  //   const query = `?search=${searchTerm}&limit=${itemsPerPage}&start=${(pageIndex * itemsPerPage)}`;
+  //
+  //   return this.auditRepo.getListAudit(query);
+  // }
+
+  loadData (pageIndex: number = 1, itemsPerPage: number = 10,  searchTerm: string = ""): Observable<ResponseGetListAudit> {
+      // const query = `?search=${searchTerm}&limit=${itemsPerPage}&start=${(pageIndex * itemsPerPage)}`;
+
+      // return this.auditRepo.getListAudit(query);
+      const filterRequest: FilterRequest = {
+        start: pageIndex,
+        limit: itemsPerPage,
+        search: searchTerm,
+        filters: this.currentFilters
+      }
+
+      return this.auditRepo.getListAuditPost(filterRequest)
   }
-
-  onUpdate (event: PageEvent) {
-  }
-  // getStart() :number {
-  //   return (Math.floor((this.currentPage -1 )* this.itemsPerPage) )
-  // }
-
-  // onSearch(): void {
-  //   this.currentPage = 1; // Reset to first page on new search
-  //   this.loadData();
-  // }
-  //
-  // onPageChange(page: PageEvent): void {
-  //   debugger
-  //   this.currentPage = page.pageIndex;
-  //   this.loadData();
-  // }
-  //
-  // onItemsPerPageChange(): void {
-  //   this.currentPage = 1; // Reset to first page when changing items per page
-  //   this.loadData();
-  // }
-  //
-  //
-  // totalPages(): number {
-  //   return Math.ceil(this.totalItems / this.itemsPerPage);
-  // }
 }

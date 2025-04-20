@@ -1,5 +1,3 @@
-
-
 export default interface AuditRecordModel {
   id: string;
   auditType: number,
