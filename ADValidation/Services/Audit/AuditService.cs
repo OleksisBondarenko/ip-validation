@@ -1,4 +1,5 @@
 using ADValidation.DTOs.Audit;
+using ADValidation.Enums;
 using ADValidation.Mappers.Audit;
 using ADValidation.Models.Audit;
 using ADValidation.Models.Filter;
@@ -40,7 +41,7 @@ public class AuditService
         int start,
         string search)
     {
-        var query = _context.AuditRecord
+         var query = _context.AuditRecord
             .Include(ar => ar.AuditData)
             .AsNoTracking()
             .AsQueryable();
@@ -123,9 +124,9 @@ public class AuditService
             case "string":
                 query = ApplyStringFilter(query, filter);
                 break;
-            case "int":
-                query = ApplyStringFilter(query, filter);
-                break;
+            // case "int":
+            //     query = ApplyStringFilter(query, filter);
+            //     break;
             // Add more filter types as needed
             default:
                 throw new ArgumentException($"Unsupported filter type: {filter.Type}");
@@ -134,14 +135,14 @@ public class AuditService
         return query;
     }
     
-    private IQueryable<AuditRecord> ApplyIntFilter(IQueryable<AuditRecord> query, Filter filter)
-    {
-        return filter.Alias.ToLower() switch
-        {
-            "actiontype" => ApplyIpAddressFilter(query, filter),
-            _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
-        };
-    }
+    // private IQueryable<AuditRecord> ApplyIntFilter(IQueryable<AuditRecord> query, Filter filter)
+    // {
+    //     return filter.Alias.ToLower() switch
+    //     {
+    //         "actiontype" => ApplyIpAddressFilter(query, filter),
+    //         _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
+    //     };
+    // }
     
     private IQueryable<AuditRecord> ApplyStringFilter(IQueryable<AuditRecord> query, Filter filter)
     {
@@ -151,6 +152,7 @@ public class AuditService
             "hostname" => ApplyHostnameFilter(query, filter), 
             "domain" => ApplyDomainFilter(query, filter), 
             "resourcename" => ApplyResourceFilter(query, filter), 
+            "audittype" => ApplyAuditTypeFilter(query, filter),
             _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
         };
     }
@@ -160,7 +162,7 @@ public class AuditService
         // Ensure the filter value is not null or empty
         if (string.IsNullOrEmpty(filter.Value.Input))
         {
-            throw new ArgumentException("Filter value for IP address cannot be null or empty.");
+            throw new ArgumentException("Filter value for audit_type cannot be null or empty.");
         }
 
         // Get the filter value as a string
@@ -175,7 +177,7 @@ public class AuditService
         {
             "audittype" => query.Where(ar =>
                 ar.AuditData != null && // Ensure AuditData is not null
-                ar.AuditType.CompareTo(value) == 0 ),
+                ar.AuditType == (AuditType)value),
             _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
         };
     }
@@ -306,7 +308,14 @@ public class AuditService
                     "DESC" => query.OrderByDescending(ar => ar.Timestamp),
                     _ => throw new ArgumentException($"Unsupported sorting direction: {orderByDir}")
                 };
-            
+            case "audittype":
+                return orderByDir.ToUpper() switch
+                {
+                    "ASC" => query.OrderBy(ar => ar.AuditType),
+                    "DESC" => query.OrderByDescending(ar => ar.AuditType),
+                    _ => throw new ArgumentException($"Unsupported sorting direction: {orderByDir}")
+                };
+
             case "resourcename":
                 return orderByDir.ToUpper() switch
                 {

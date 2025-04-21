@@ -43,51 +43,51 @@
       <_ContentIncludedByDefault Remove="wwwroot\browser\styles-IHLR3ZBD.css" />
     </ItemGroup>
     
-    <Target Name="ValidateAngularDirectory" BeforeTargets="Build">
-        <Error Condition="!Exists('$(SpaRoot)')"
-               Text="Angular directory $(SpaRoot) does not exist. Please create it and initialize an Angular project." />
-        <Error Condition="!Exists('$(SpaRoot)package.json')"
-               Text="package.json not found in $(SpaRoot). Is this an Angular project directory?" />
-    </Target>
+<!--    <Target Name="ValidateAngularDirectory" BeforeTargets="Build">-->
+<!--        <Error Condition="!Exists('$(SpaRoot)')"-->
+<!--               Text="Angular directory $(SpaRoot) does not exist. Please create it and initialize an Angular project." />-->
+<!--        <Error Condition="!Exists('$(SpaRoot)package.json')"-->
+<!--               Text="package.json not found in $(SpaRoot). Is this an Angular project directory?" />-->
+<!--    </Target>-->
 
-    <Target Name="EnsureNodeEnv" BeforeTargets="Build">
-        <!-- Check Node.js is installed -->
-        <Exec Command="node --version" ContinueOnError="true">
-            <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-        </Exec>
-        <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build this project" />
+<!--    <Target Name="EnsureNodeEnv" BeforeTargets="Build">-->
+<!--        &lt;!&ndash; Check Node.js is installed &ndash;&gt;-->
+<!--        <Exec Command="node &#45;&#45;version" ContinueOnError="true">-->
+<!--            <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />-->
+<!--        </Exec>-->
+<!--        <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build this project" />-->
 
-        <!-- Install dependencies -->
-        <Exec Command="npm install" WorkingDirectory="$(SpaRoot)"
-              Condition="Exists('$(SpaRoot)')" />
-    </Target>
+<!--        &lt;!&ndash; Install dependencies &ndash;&gt;-->
+<!--        <Exec Command="npm install" WorkingDirectory="$(SpaRoot)"-->
+<!--              Condition="Exists('$(SpaRoot)')" />-->
+<!--    </Target>-->
 
-    <Target Name="BuildAngular" AfterTargets="Build" Condition="Exists('$(SpaRoot)')">
-        <!-- Clean wwwroot first -->
-        <RemoveDir Directories="$(AngularBuildOutputPath)" />
+<!--    <Target Name="BuildAngular" AfterTargets="Build" Condition="Exists('$(SpaRoot)')">-->
+<!--        &lt;!&ndash; Clean wwwroot first &ndash;&gt;-->
+<!--        <RemoveDir Directories="$(AngularBuildOutputPath)" />-->
 
-        <!-- Build Angular directly to wwwroot -->
-        <Exec Command="npm run build -- --output-path $(AngularBuildOutputPath)"
-              WorkingDirectory="$(SpaRoot)"
-              Condition="Exists('$(SpaRoot)package.json')" />
-    </Target>
+<!--        &lt;!&ndash; Build Angular directly to wwwroot &ndash;&gt;-->
+<!--        <Exec Command="npm run build &#45;&#45; &#45;&#45;output-path $(AngularBuildOutputPath)"-->
+<!--              WorkingDirectory="$(SpaRoot)"-->
+<!--              Condition="Exists('$(SpaRoot)package.json')" />-->
+<!--    </Target>-->
 
-    <Target Name="PublishAngular" BeforeTargets="Build" Condition=" '$(ExcludeAngularBuild)' == 'false' And Exists('$(SpaRoot)') ">
-        <!-- Production build directly to wwwroot -->
-        <Exec Command="npm run build -- --output-path $(AngularBuildOutputPath) "
-              WorkingDirectory="$(SpaRoot)"
-              Condition="Exists('$(SpaRoot)package.json')" />
+<!--    <Target Name="PublishAngular" BeforeTargets="Build" Condition=" '$(ExcludeAngularBuild)' == 'false' And Exists('$(SpaRoot)') ">-->
+<!--        &lt;!&ndash; Production build directly to wwwroot &ndash;&gt;-->
+<!--        <Exec Command="npm run build &#45;&#45; &#45;&#45;output-path $(AngularBuildOutputPath) "-->
+<!--              WorkingDirectory="$(SpaRoot)"-->
+<!--              Condition="Exists('$(SpaRoot)package.json')" />-->
 
-        <!-- Ensure wwwroot is included in publish -->
-        <ItemGroup>
-            <Content Include="wwwroot\**" />
-        </ItemGroup>
-    </Target>
+<!--        &lt;!&ndash; Ensure wwwroot is included in publish &ndash;&gt;-->
+<!--        <ItemGroup>-->
+<!--            <Content Include="wwwroot\**" />-->
+<!--        </ItemGroup>-->
+<!--    </Target>-->
 
-    <Target Name="CleanAngular" BeforeTargets="Clean">
-        <RemoveDir Directories="$(SpaRoot)dist" Condition="Exists('$(SpaRoot)')" />
-        <RemoveDir Directories="$(SpaRoot)node_modules" Condition="Exists('$(SpaRoot)')" />
-<!--        <RemoveDir Directories="wwwroot" />-->
-    </Target>
+<!--    <Target Name="CleanAngular" BeforeTargets="Clean">-->
+<!--        <RemoveDir Directories="$(SpaRoot)dist" Condition="Exists('$(SpaRoot)')" />-->
+<!--        <RemoveDir Directories="$(SpaRoot)node_modules" Condition="Exists('$(SpaRoot)')" />-->
+<!--&lt;!&ndash;        <RemoveDir Directories="wwwroot" />&ndash;&gt;-->
+<!--    </Target>-->
 
 </Project>

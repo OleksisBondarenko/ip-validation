@@ -29,13 +29,15 @@ export class AuditListComponent implements OnInit, AfterViewInit {
   filterConfig: FilterConfig [] = [
     {
       type: 'select',
-      key: 'auditTypeString',
-      label: 'Action Type',
+      key: 'auditType',
+      label: 'Audit Type',
       options: [
-        { value: '1', label: 'ok' },
-        { value: '2', label: 'NotFound' },
-        { value: '3', label: 'NotFoundEra' },
-        { value: '4', label: 'NotFoundDomain' },
+        { value: '0', label: 'Ok' },
+        { value: '1', label: 'NotFound' },
+        { value: '2', label: 'NotFoundDomain' },
+        { value: '3', label: 'NotFoundEset' },
+        { value: '4', label: 'NotValidEsetTimespan' },
+        { value: '10', label: 'NoAccessToDb' },
       ]
     },
     {
@@ -64,8 +66,10 @@ export class AuditListComponent implements OnInit, AfterViewInit {
     }
   ];
 
-  onFilterApply () {
-    this.updateUI();
+  onFilterApply (filters: any[]) {
+    this.currentFilters = filters;
+
+    this.initPaginator();
   }
   onFilterChanged(filters: any[]) {
     this.currentFilters = filters;
@@ -73,7 +77,7 @@ export class AuditListComponent implements OnInit, AfterViewInit {
 
   onFilterReset() {
     this.currentFilters = [];
-    this.updateUI();
+    this.initPaginator();
 
   }
 
@@ -96,17 +100,17 @@ export class AuditListComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
 
-   this.updateUI();
+     this.initPaginator();
    }
 
-   updateUI () {
+   initPaginator () {
      this.paginator.page
        .pipe(
          startWith({}),
          switchMap(() => {
            this.isLoading = true;
            return this.loadData(
-             this.paginator.pageIndex,
+             this.paginator.pageIndex * this.paginator.pageSize,
              this.paginator.pageSize
            ).pipe(catchError((e) => from([])));
          }),

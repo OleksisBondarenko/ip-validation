@@ -7,13 +7,17 @@ import {CommonModule, NgSwitch} from "@angular/common";
 import {MatOption, MatSelect} from "@angular/material/select";
 import {
   MatDatepicker,
-  MatDatepickerInput,
+  MatDatepickerInput, MatDatepickerModule,
   MatDatepickerToggle,
   MatDateRangeInput,
   MatDateRangePicker
 } from "@angular/material/datepicker";
-import {MatInput} from "@angular/material/input";
+import {MatInput, MatInputModule} from "@angular/material/input";
 import {MatButton, MatButtonModule} from "@angular/material/button";
+import {MatDateRangeInputHarness} from "@angular/material/datepicker/testing";
+
+
+import {OwlDateTimeModule, OwlNativeDateTimeModule} from "@danielmoncada/angular-datetime-picker";
 
 export interface FilterConfig {
   type: 'text' | 'date' | 'select';
@@ -39,10 +43,16 @@ export interface FilterConfig {
     MatButtonModule,
     MatDatepickerToggle,
     CommonModule,
+    OwlDateTimeModule,
+    OwlNativeDateTimeModule,
     MatDateRangeInput,
     MatDateRangePicker,
     MatHint,
-    MatError
+    MatInputModule,
+    MatDatepickerModule,
+    MatError,
+    MatDatepicker,
+    MatDatepickerInput,
   ],
   styleUrls: ['./filter.component.scss']
 })
@@ -50,7 +60,7 @@ export class FilterComponent implements OnInit {
   @Input() filterConfig: FilterConfig[] = [];
   @Output() filterChanged = new EventEmitter<any>();
   @Output() filterReset = new EventEmitter<void>();
-  @Output() filterApply = new EventEmitter<void>();
+  @Output() filterApply = new EventEmitter<any>();
 
   filterForm: FormGroup;
 
@@ -65,23 +75,33 @@ export class FilterComponent implements OnInit {
 
   private createFormControls() {
     this.filterConfig.forEach(config => {
-      if (config.type === 'date') {
-        this.filterForm.addControl(`${config.key}_from`, this.fb.control(''));
-        this.filterForm.addControl(`${config.key}_to`, this.fb.control(''));
-      } else {
+      // if (config.type === 'date') {
+      //   this.filterForm.addControl(`${config.key}_from`, this.fb.control(''));
+      //   this.filterForm.addControl(`${config.key}_to`, this.fb.control(''));
+      // } else {
         this.filterForm.addControl(config.key, this.fb.control(''));
-      }
+      // }
     });
   }
 
   private setupFilterChanges() {
     this.filterForm.valueChanges
       .pipe(
-        debounceTime(300),
-        distinctUntilChanged()
+        debounceTime(10),
+        distinctUntilChanged(),
       )
       .subscribe(value => {
-        this.filterChanged.emit(this.parseFilters(value));
+        // this.filterChanged.emit(this.parseFilters(value));
+        if (value && typeof value === 'object') {
+          const timestamp = value.timestamp;
+          if (timestamp && Array.isArray(timestamp) && timestamp.length > 1) {
+            value.timestamp = {
+              from: timestamp[0],
+              to: timestamp[1]
+            };
+          }
+          this.filterChanged.emit(this.parseFilters(value));
+        }
       });
   }
 
@@ -90,8 +110,8 @@ export class FilterComponent implements OnInit {
 
     this.filterConfig.forEach(config => {
       const value = formValue[config.key];
-      const from = formValue[`${config.key}_from`];
-      const to = formValue[`${config.key}_to`];
+      const from = value.from;
+      const to = value.to;
 
       if (value || (from || to)) {
         filters.push({
@@ -115,18 +135,17 @@ export class FilterComponent implements OnInit {
   private createFilterValue(type: string, value: any, from?: any, to?: any) {
     switch(type) {
       case 'date':
-        return { from: from?.toISOString(), to: to?.toISOString() };
-      // case 'date':
-      //   return { input: value?.toISOString(), operator: 'eq' };
+        return from && to ? { from: from?.toISOString(), to: to?.toISOString() } : null;
       case 'select':
-        return { id: value };
+        return { input: value };
       default:
         return { input: value, operator: 'contains' };
     }
   }
 
   applyFilters () {
-    this.filterApply.emit();
+    const newFilters = this.parseFilters(this.filterForm.value);
+    this.filterApply.emit(newFilters);
   }
   resetFilters() {
     this.filterForm.reset();
