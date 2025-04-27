@@ -7,8 +7,8 @@
 /bazel-out
 
 # it's build from client.
-/client-validation/browser
-/client-validation/src/environments/environment.prod.ts
+browser
+src/environments/environment.prod.ts
 
 # Node
 /node_modules
