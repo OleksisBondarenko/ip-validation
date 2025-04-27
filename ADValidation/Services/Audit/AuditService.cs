@@ -1,3 +1,4 @@
+using System.Text.Json;
 using ADValidation.DTOs.Audit;
 using ADValidation.Enums;
 using ADValidation.Mappers.Audit;
@@ -124,6 +125,9 @@ public class AuditService
             case "string":
                 query = ApplyStringFilter(query, filter);
                 break;
+            case "stringarray":
+                query = ApplyStringArrayFilter(query, filter);
+                break;
             // case "int":
             //     query = ApplyStringFilter(query, filter);
             //     break;
@@ -150,9 +154,18 @@ public class AuditService
         {
             "ipaddress" => ApplyIpAddressFilter(query, filter),
             "hostname" => ApplyHostnameFilter(query, filter), 
-            "domain" => ApplyDomainFilter(query, filter), 
             "resourcename" => ApplyResourceFilter(query, filter), 
             "audittype" => ApplyAuditTypeFilter(query, filter),
+            _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
+        };
+    }
+    
+    private IQueryable<AuditRecord> ApplyStringArrayFilter(IQueryable<AuditRecord> query, Filter filter)
+    {
+        return filter.Alias.ToLower() switch
+        {
+            "audittype" => ApplyAuditTypeFilter(query, filter),
+            "domain" => ApplyDomainFilter(query, filter), 
             _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
         };
     }
@@ -165,19 +178,33 @@ public class AuditService
             throw new ArgumentException("Filter value for audit_type cannot be null or empty.");
         }
 
-        // Get the filter value as a string
-        bool isValid = int.TryParse(filter.Value.Input, out int value);
+        // // Get the filter value as a string
+        // bool isValid = int.TryParse(filter.Value.Input, out int value);
 
-        if (!isValid)
+        // if (!isValid)
+        // {
+        //     throw new ArgumentException($"Unsupported int field: {filter.Alias}");
+        // }
+        
+        List<int> inputs;
+        try
         {
-            throw new ArgumentException($"Unsupported int field: {filter.Alias}");
+            inputs =
+                JsonSerializer.Deserialize<List<string>>(filter.Value.Input)
+                    .Select(input => int.Parse(input))
+                    .ToList();
         }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error while parsing {nameof(inputs)}");
+        }
+
         // Apply the filter based on the alias
         return filter.Alias.ToLower() switch
         {
             "audittype" => query.Where(ar =>
                 ar.AuditData != null && // Ensure AuditData is not null
-                ar.AuditType == (AuditType)value),
+                inputs.Contains((int)ar.AuditType)),
             _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
         };
     }
@@ -234,16 +261,18 @@ public class AuditService
             throw new ArgumentException("Filter value for IP address cannot be null or empty.");
         }
 
-        // Get the filter value as a string
-        var value = filter.Value.Input;
+        List<string> inputs = JsonSerializer.Deserialize<List<string>>(filter.Value.Input) 
+                              ?? throw new ArgumentNullException(nameof(filter.Value.Input), "Input cannot be null");
 
-        // Apply the filter based on the alias
-        return filter.Alias.ToLower() switch
+        // Create a HashSet for O(1) lookups (case-insensitive)
+        var inputSet = new HashSet<string>(inputs, StringComparer.OrdinalIgnoreCase);
+
+        return filter.Alias.ToLowerInvariant() switch
         {
             "domain" => query.Where(ar =>
-                ar.AuditData != null && // Ensure AuditData is not null
-                !string.IsNullOrEmpty(ar.AuditData.Domain) && // Ensure IpAddress is not null
-                ar.AuditData.Domain.Contains(value)), // Case-insensitive search
+                ar.AuditData != null && 
+                (inputSet.Contains(string.Empty) ||
+                inputSet.Contains(ar.AuditData.Domain))),
             _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
         };
     }

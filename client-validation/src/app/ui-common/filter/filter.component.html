@@ -10,10 +10,10 @@
         </mat-form-field>
 
         <!-- Select Input -->
-        <mat-form-field *ngSwitchCase="'select'" appearance="outline">
+        <mat-form-field *ngSwitchCase="'selectMany'" appearance="outline">
           <mat-label>{{ config.label }}</mat-label>
-          <mat-select [formControlName]="config.key" (selectionChange)="applyFilters()" (change)="applyFilters()">
-            <mat-option *ngFor="let option of config.options" [value]="option.value">
+          <mat-select [formControlName]="config.key" (selectionChange)="applyFilters()" multiple>
+            <mat-option *ngFor="let option of config.options"  [value]="option.value" >
               {{ option.label }}
             </mat-option>
           </mat-select>
@@ -47,15 +47,15 @@
 <!--          </mat-form-field>-->
 
 
-          <input class="mdc-text-field mdc-text-field--outlined "
+          <input class="mdc-text-field mdc-text-field--outlined date-range--material "
                  [owlDateTime]="dt1"
                  [selectMode]="'range'"
                  [owlDateTimeTrigger]="dt1"
                  [formControlName]="config.key"
+
                  placeholder={{config.label}}>
           <owl-date-time
             [hour12Timer]="false"
-
             #dt1
           ></owl-date-time>
 
@@ -91,13 +91,13 @@
 
   <div class="filter-actions">
     <button mat-button color="ok" type="button" (click)="applyFilters()">
-      Apply filters
+      Застосувати зміни
     </button>
   </div>
 
   <div class="filter-actions">
     <button mat-button color="warn" type="button" (click)="resetFilters()">
-      Reset Filters
+      Скинути
     </button>
   </div>
 </form>

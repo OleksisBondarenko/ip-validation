@@ -8,6 +8,7 @@
 
 # it's build from client.
 /client-validation/browser
+/client-validation/src/environments/environment.prod.ts
 
 # Node
 /node_modules

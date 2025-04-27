@@ -23,6 +23,17 @@
           flex: 1;
         }
       }
+
+      .date-range--material {
+        border: 1px solid #9a9a9c;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+        color: #626363;
+
+        :hover {
+          border: 1px solid rgba(0, 0, 0, 0.87);
+        }
+      }
     }
   }
 

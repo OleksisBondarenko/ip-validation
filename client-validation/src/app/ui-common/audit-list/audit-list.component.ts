@@ -4,11 +4,12 @@ import {MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import AuditRecordModel, {ResponseGetListAudit} from "../../models/auditData.model";
-import {MatPaginator, MatPaginatorModule, PageEvent} from '@angular/material/paginator';
+import {MatPaginator, MatPaginatorIntl, MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {AuditRepoService} from "../../services/audit-repo.service";
 import {catchError, from, map, Observable, startWith, switchMap} from "rxjs";
 import {FilterComponent, FilterConfig} from "../filter/filter.component";
 import {Filter, FilterRequest} from "../../models/filter.model";
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-audit-list',
@@ -26,45 +27,7 @@ import {Filter, FilterRequest} from "../../models/filter.model";
   styleUrls: ['./audit-list.component.scss']
 })
 export class AuditListComponent implements OnInit, AfterViewInit {
-  filterConfig: FilterConfig [] = [
-    {
-      type: 'select',
-      key: 'auditType',
-      label: 'Audit Type',
-      options: [
-        { value: '0', label: 'Ok' },
-        { value: '1', label: 'NotFound' },
-        { value: '2', label: 'NotFoundDomain' },
-        { value: '3', label: 'NotFoundEset' },
-        { value: '4', label: 'NotValidEsetTimespan' },
-        { value: '10', label: 'NoAccessToDb' },
-      ]
-    },
-    {
-      type: 'text',
-      key: 'resourceName',
-      label: 'Resource Name'
-    },
-    {
-      type: 'date',
-      key: 'timestamp',
-      label: 'Date Range'
-    },
-    {
-      type: 'text',
-      key: 'ipAddress',
-      label: 'IP Address'
-    },
-    {
-      type: 'select',
-      key: 'domain',
-      label: 'Domain',
-      options: [
-        { value: 'localhost', label: 'Localhost' },
-        { value: 'test.com', label: 'Test Domain' }
-      ]
-    }
-  ];
+  filterConfig: FilterConfig [] = environment.filterConfig;
 
   onFilterApply (filters: any[]) {
     this.currentFilters = filters;
@@ -73,12 +36,12 @@ export class AuditListComponent implements OnInit, AfterViewInit {
   }
   onFilterChanged(filters: any[]) {
     this.currentFilters = filters;
+    this.paginator.firstPage();
   }
 
   onFilterReset() {
     this.currentFilters = [];
     this.initPaginator();
-
   }
 
   currentFilters: Filter [] = [];

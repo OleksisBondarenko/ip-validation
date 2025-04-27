@@ -1,0 +1,29 @@
+{
+  "UrlToConfig": "http://localhost:5001/assets/settings.json",
+  "WatermarkOptions": {
+    "Title": "Sample Watermark", // if ip isn't avaliable.
+    "Description": "This is a description", // if ip isn't avaliable.
+    "PrefixTitle": "",
+    "PrefixDescription": "IP: ",
+    "SizeImage": "100",
+    "OpacityImage": 0.10,
+    "OpacityText": 0.4,
+    "FontSizeTitle": "16",
+    "FontSizeDescription": "14",
+    "Angle": -45,
+    "Color": "Gray",
+    "Spacing": 300,
+    "MarginBottom": 10,
+    "AbsoluteImagePath": "http://localhost:5001/assets/mcdonald-s-menu.png",
+    "RelativeImagePath": "assets/images/dpsu_icon.png"
+  },
+  "NetworkInfoOptions": {
+    "ExcludeAddresses": [ "127.0.0.1", "::1" ],
+    "ShowAddressesCount": 2
+  },
+  "NotApplyUserNames": [ "Маковський " ],
+  "NotApplyProcessNames": [ "rocket.chat" ],
+  "DelayFirstStartSeconds": 5,
+  "DelayFirstRenderSeconds": 3,
+  "IntervalTopMostSeconds":  3
+}

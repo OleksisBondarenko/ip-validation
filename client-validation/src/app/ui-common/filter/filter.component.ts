@@ -5,26 +5,21 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {MatError, MatFormField, MatHint, MatLabel} from "@angular/material/form-field";
 import {CommonModule, NgSwitch} from "@angular/common";
 import {MatOption, MatSelect} from "@angular/material/select";
-import {
-  MatDatepicker,
-  MatDatepickerInput, MatDatepickerModule,
-  MatDatepickerToggle,
-  MatDateRangeInput,
-  MatDateRangePicker
-} from "@angular/material/datepicker";
+import { MatDatepickerModule } from "@angular/material/datepicker";
 import {MatInput, MatInputModule} from "@angular/material/input";
 import {MatButton, MatButtonModule} from "@angular/material/button";
-import {MatDateRangeInputHarness} from "@angular/material/datepicker/testing";
 
 
 import {OwlDateTimeModule, OwlNativeDateTimeModule} from "@danielmoncada/angular-datetime-picker";
 
 export interface FilterConfig {
-  type: 'text' | 'date' | 'select';
+  type: 'text' | 'date' | 'select' | 'selectMany';
   key: string;
   label: string;
-  options?: { value: any; label: string }[];
+  options?: { value?: any; label?: string }[];
 }
+
+export type FilterType = FilterConfig['type']
 
 @Component({
   selector: 'app-filter',
@@ -36,23 +31,15 @@ export interface FilterConfig {
     NgSwitch,
     MatSelect,
     MatOption,
-    MatDatepickerToggle,
     MatLabel,
     MatInput,
     MatButton,
     MatButtonModule,
-    MatDatepickerToggle,
     CommonModule,
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
-    MatDateRangeInput,
-    MatDateRangePicker,
-    MatHint,
     MatInputModule,
     MatDatepickerModule,
-    MatError,
-    MatDatepicker,
-    MatDatepickerInput,
   ],
   styleUrls: ['./filter.component.scss']
 })
@@ -71,6 +58,8 @@ export class FilterComponent implements OnInit {
   ngOnInit() {
     this.createFormControls();
     this.setupFilterChanges();
+    this.resetForm();
+
   }
 
   private createFormControls() {
@@ -109,9 +98,9 @@ export class FilterComponent implements OnInit {
     const filters: any[] = [];
 
     this.filterConfig.forEach(config => {
-      const value = formValue[config.key];
-      const from = value.from;
-      const to = value.to;
+      const value = formValue?.[config.key];
+      const from = value?.from;
+      const to = value?.to;
 
       if (value || (from || to)) {
         filters.push({
@@ -128,6 +117,7 @@ export class FilterComponent implements OnInit {
   private getFilterType(type: string): string {
     switch(type) {
       case 'date': return 'date';
+      case 'selectMany': return 'stringArray';
       default: return 'string';
     }
   }
@@ -138,6 +128,8 @@ export class FilterComponent implements OnInit {
         return from && to ? { from: from?.toISOString(), to: to?.toISOString() } : null;
       case 'select':
         return { input: value };
+       case 'selectMany':
+         return { input: JSON.stringify(value) };
       default:
         return { input: value, operator: 'contains' };
     }
@@ -147,8 +139,33 @@ export class FilterComponent implements OnInit {
     const newFilters = this.parseFilters(this.filterForm.value);
     this.filterApply.emit(newFilters);
   }
+
+
+
   resetFilters() {
-    this.filterForm.reset();
-    this.filterReset.emit();
+    this.resetForm();
+    this.applyFilters();
+  }
+
+  resetForm () {
+    const defaultValues = this.defaultValuesByConfig();
+    this.filterForm.setValue(defaultValues);
+  }
+
+  defaultValuesByConfig (): any {
+    // return key == "selectMany" ? [] : "";
+    const filterConfig = this.filterConfig;
+    const defaultConfig = {} as any;
+
+    filterConfig.forEach(config => {
+      if (config.type === "selectMany" ) {
+        const newValues = config.options?.map(option => option.value);
+        defaultConfig[config.key] = newValues;
+      } else {
+        defaultConfig[config.key] = "";
+      }
+    })
+
+    return defaultConfig;
   }
 }
