@@ -1,4 +1,7 @@
 using System.Text.RegularExpressions;
+using ADValidation.Helpers.Ip;
+using ADValidation.Models;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
 namespace ADValidation.Services;
@@ -6,10 +9,18 @@ namespace ADValidation.Services;
 public class IPAddressService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ILogger<IPAddressService> _logger;
+    private readonly ValidationSettings _validationSettings;
 
-    public IPAddressService(IHttpContextAccessor httpContextAccessor)
+    public IPAddressService(
+        IHttpContextAccessor httpContextAccessor, 
+        ILogger<IPAddressService> logger,
+        IOptions<ValidationSettings> validationSettings
+        )
     {
         _httpContextAccessor = httpContextAccessor;
+        _logger = logger;
+        _validationSettings = validationSettings.Value;
     }
 
     public string GetRequestIP(bool tryUseXForwardHeader = true)
@@ -41,7 +52,21 @@ public class IPAddressService
         return ip;
     }
 
-    
+    public bool IsWhiteListIp(string ip)
+    {
+        try 
+        {
+            WhiteListIpConfigReader whiteListIpConfigReader = new WhiteListIpConfigReader(_validationSettings.WhiteListConfigPath);
+            var whiteListIp = whiteListIpConfigReader.WhiteListIPs();
+            return whiteListIp.Contains(ip);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+        }
+        return false;
+
+    }
     public string ExtractIPv4(string input)
     {
         // Define the regex pattern for an IPv4 address

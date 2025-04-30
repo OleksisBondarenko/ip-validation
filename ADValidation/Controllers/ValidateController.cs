@@ -30,7 +30,8 @@ public class ValidateController : ControllerBase
         DomainService domainService,
         EraService eraService,
         ILogger<ValidateController> logger,
-        IOptions<ValidationSettings> validationSettings)
+        IOptions<ValidationSettings> validationSettings
+        )
     {
         
         _auditLogger = auditLogger;
@@ -56,6 +57,13 @@ public async Task<ActionResult> Validate(
     string userIp = _ipAddressService.GetRequestIP();
     validationResult.IpAddress = _ipAddressService.ExtractIPv4(userIp);
     validationResult.ResourceName = string.IsNullOrEmpty(resource) ? string.Empty : resource;
+
+    if (_ipAddressService.IsWhiteListIp(validationResult.IpAddress))
+    {
+        validationResult.Message = "Bypass. ip in white-list ip addresses";
+        _auditLogger.ExecuteWithAudit(AuditType.Ok, validationResult);
+        return Ok(validationResult);
+    }
     
     if (string.IsNullOrEmpty(validationResult.IpAddress))
     {
