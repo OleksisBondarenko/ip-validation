@@ -1,12 +1,18 @@
 
 using ADValidation.Models.Audit;
+using ADValidation.Models.Auth;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Sqlite;
 
-public class ApplicationDbContext : DbContext
-{
-    public DbSet<AuditRecord> AuditRecord { get; set; }
+namespace ADValidation.Data;
 
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
+{
+    // public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<AuditRecord> AuditRecord { get; set; }
+    
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {

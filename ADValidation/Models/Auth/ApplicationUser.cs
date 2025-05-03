@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace ADValidation.Models.Auth;
 
-public class ApplicationUser
+public class ApplicationUser: IdentityUser <Guid>
 {
     
 }

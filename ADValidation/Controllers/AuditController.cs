@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 namespace ADValidation.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/v1/[controller]")]
 public class AuditController : ControllerBase
 {
