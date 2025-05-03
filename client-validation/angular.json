@@ -18,8 +18,8 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "../ADValidation/wwwroot/",
             "outputPath": "dist/client-validation",
+            "outputPath": "../ADValidation/wwwroot/",
             "baseHref": "/browser/",
             "index": "src/index.html",
             "browser": "src/main.ts",

@@ -1,0 +1,41 @@
+<div class="main">
+  <form class="form" [formGroup]="form" (submit)="submit($event)">
+
+    <mat-form-field>
+        <mat-label >  Username</mat-label>
+        <input matInput [formControlName]="'username'">
+      <mat-error >
+        @if (form.controls.username.dirty && form.controls.username.getError("required")) {
+          Ім'я має бути заповнене
+        }
+        @if (form.controls.username.dirty && form.controls.username.getError("email")) {
+          Має бути формат {{"user@mail.com"}}
+        }
+      </mat-error>
+    </mat-form-field>
+
+
+    <mat-form-field>
+      <mat-label>Enter your password</mat-label>
+      <input matInput [formControlName]="'password'" [type]="hide() ? 'password' : 'text'">
+      <button mat-icon-button matSuffix (click)="togglePasswordVisibility()" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+        <mat-icon >{{hide() ? 'visibility_off' : 'visibility'}}</mat-icon>
+      </button>
+      <mat-error >
+        @if (form.controls.password.dirty && form.controls.password.getError("required")) {
+         Поле паролю потрібно заповнити
+        }
+        @if (form.controls.password.dirty && form.controls.password.getError("minlength")) {
+          Пароль має містити мінімум
+          {{form.controls.password.getError("minlength").requiredLength}}
+          зараз
+          {{form.controls.password.getError("minlength").actualLength}}
+        }
+      </mat-error>
+    </mat-form-field>
+
+
+    <button class="btn-submit" mat-flat-button (click)="submit($event)">Login</button>
+  </form>
+</div>
+

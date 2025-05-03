@@ -57,6 +57,7 @@ export class ApiService {
   private handleError(error: any): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
 
+    console.error(error);
     if (error.error instanceof ErrorEvent) {
       // Client-side error
       errorMessage = `Error: ${error.error.message}`;
