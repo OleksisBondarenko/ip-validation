@@ -16,21 +16,21 @@ public class AuditLoggerService
         _auditService = auditService;
     }
 
-    public void ExecuteWithAudit(AuditType type, ValidationSuccessResult validationResult)
+    public void ExecuteWithAudit(AuditType type, ValidationResultDto validationResultDto)
 
     {
         var auditData = new AuditData()
         {
-            UserName = validationResult.UserName,
-            IpAddress = validationResult.IpAddress,
-            Hostname = validationResult.Hostname,
-            Domain = validationResult.Domain,  
+            UserName = validationResultDto.UserName,
+            IpAddress = validationResultDto.IpAddress,
+            Hostname = validationResultDto.Hostname,
+            Domain = validationResultDto.Domain,  
         };
         
         var auditRecord = new AuditRecord()
         {
             AuditType = type,
-            ResourceName = validationResult.ResourceName,
+            ResourceName = validationResultDto.ResourceName,
             AuditData = auditData,
         };
 

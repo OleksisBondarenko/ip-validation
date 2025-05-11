@@ -13,5 +13,6 @@ public enum AuditType
     NotFoundDomain = 2,
     NotFoundEset = 3,
     NotValidEsetTimespan = 4,
-    NoAccessToDb = 10
+    NoAccessToDb = 10,
+    OkWhiteListIp = 21
 }

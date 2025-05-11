@@ -6,6 +6,7 @@ using ADValidation.Models.Auth;
 using ADValidation.Models.ERA;
 using ADValidation.Services;
 using ADValidation.Services.Auth;
+using ADValidation.Services.Validation;
 using AspNetCore.Proxy;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -81,6 +82,7 @@ builder.Services.Configure<ValidationSettings>(builder.Configuration.GetSection(
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IPAddressService>();
+builder.Services.AddScoped<ValidationService>();
 builder.Services.AddScoped<DomainService>();
 builder.Services.AddScoped<EraService>();
 builder.Services.AddScoped<SeederService>();
@@ -99,14 +101,12 @@ app.UseRouting();
 app.UseAuthentication();    // This must come before UseAuthorization
 app.UseAuthorization();     // This enables the [Authorize] attribute
 
-app.UseEndpoints(endpoints =>
+using (var scope = app.Services.CreateScope())
 {
-    endpoints.MapControllers();
-    
-    // Fallback to Angular's index.html for client-side routing
-    endpoints.MapFallbackToFile("/browser/index.html");
-});
-
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate(); // Apply migrations
+        
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -121,12 +121,14 @@ if (app.Environment.IsDevelopment())
     }
 }
 
-using (var scope = app.Services.CreateScope())
+app.UseEndpoints(endpoints =>
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.Migrate(); // Apply migrations
-        
-}
+    endpoints.MapControllers();
+    
+    // Fallback to Angular's index.html for client-side routing
+    endpoints.MapFallbackToFile("/browser/index.html");
+});
+
 
 app.MapControllers()
     .WithOpenApi();

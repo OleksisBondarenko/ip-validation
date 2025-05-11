@@ -1,10 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using ADValidation.Decorators;
 using ADValidation.Enums;
+using ADValidation.Helpers.OrderHelper;
 using ADValidation.Models;
 using ADValidation.Models.Api;
 using ADValidation.Models.ERA;
 using ADValidation.Services;
+using ADValidation.Services.Validation;
+using ADValidation.Validators;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -21,19 +24,23 @@ public class ValidateController : ControllerBase
     private readonly ILogger<ValidateController> _logger;
     private readonly EraService _eraService;
     private readonly DomainService _domainService;
-    private readonly TimeSpan _cacheDuration; 
+    private readonly TimeSpan _cacheDuration;
     private readonly ValidationSettings _validationSettings;
+    private readonly ValidationService _validationService;
+
     public ValidateController(
         IPAddressService ipAddressService,
-        AuditLoggerService auditLogger ,   
-        IMemoryCache memoryCache, 
+        AuditLoggerService auditLogger,
+        ValidationService validationService,
+        IMemoryCache memoryCache,
         DomainService domainService,
         EraService eraService,
         ILogger<ValidateController> logger,
         IOptions<ValidationSettings> validationSettings
-        )
+    )
     {
-        
+
+        _validationService = validationService;
         _auditLogger = auditLogger;
         _ipAddressService = ipAddressService;
         _cache = memoryCache;
@@ -45,138 +52,139 @@ public class ValidateController : ControllerBase
         _cacheDuration = TimeSpan.FromMinutes(_validationSettings.CacheDurationMinutes);
     }
 
-   
+
     [HttpGet]
-public async Task<ActionResult> Validate(
-    [FromQuery] string? resource)
-{
-    // Initialize result objects
-    var validationResult = new ValidationSuccessResult();
-    
-    // Get and validate IP address
-    string userIp = _ipAddressService.GetRequestIP();
-    validationResult.IpAddress = _ipAddressService.ExtractIPv4(userIp);
-    validationResult.ResourceName = string.IsNullOrEmpty(resource) ? string.Empty : resource;
+    public async Task<ActionResult> Validate([FromQuery] string? resource)
+    {
+        var validationResult = InitializeValidationResult(resource);
 
-    if (_ipAddressService.IsWhiteListIp(validationResult.IpAddress))
-    {
-        validationResult.Message = "Bypass. ip in white-list ip addresses";
-        _auditLogger.ExecuteWithAudit(AuditType.Ok, validationResult);
-        return Ok(validationResult);
-    }
-    
-    if (string.IsNullOrEmpty(validationResult.IpAddress))
-    {
-        validationResult.Message = "Please provide a valid IP address.";
-        _auditLogger.ExecuteWithAudit(AuditType.NotFound, validationResult);
-        return Unauthorized(validationResult);
-    }
-
-    try
-    {
-        // Try to get computer data with caching
-       string cacheSuccessCompKey= $"comp_data_{validationResult.IpAddress}";
-        if (!_cache.TryGetValue(cacheSuccessCompKey, out ComputerAggregatedData computerAggregatedData))
+        try
         {
-            computerAggregatedData = await _eraService.GetComputerAggregatedData(validationResult.IpAddress);
-            validationResult.Hostname = computerAggregatedData.ComputerName;
+            var  validationAgregatedResult =
+                await GetComputerAggregatedValidationResult(validationResult.IpAddress);
             
-            // Check is ESET was active last 5 minutess
-            int eraTimespanMilis = _validationSettings.EsetValidConnectionTimespan;
-            DateTime modifiedConnectedTime =
-                computerAggregatedData.ComputerConnected.Add(TimeSpan.FromMilliseconds(eraTimespanMilis));
-            if (modifiedConnectedTime < DateTime.Now)
+            validationResult = MapValidationResultToDto(validationResult, validationAgregatedResult.Data);
+
+            if (!validationAgregatedResult.ValidationResult.IsValid)
             {
-                _auditLogger.ExecuteWithAudit(AuditType.NotValidEsetTimespan, validationResult);
-                return Unauthorized(new
-                {
-                    Data = validationResult,
-                    auditCode = (int)AuditType.NotValidEsetTimespan,
-                    message =
-                        $"Computer wasn`t online in ESET ERA more than {TimeSpan.FromMilliseconds(eraTimespanMilis)}"
-                });
-            }
-            
-            // Domain validation
-            string domain = _domainService.GetDomainFromHostname(validationResult.Hostname);
-            computerAggregatedData.Domain = domain;
-            
-            if (string.IsNullOrEmpty(domain))
-            {
-                _auditLogger.ExecuteWithAudit(AuditType.NotFoundDomain, validationResult);
-                return Unauthorized(new {
-                    auditCode = (int)AuditType.NotFoundDomain,
-                    data = new ValidationSuccessResult()
-                    {
-                        Message = "Hostname not found in any configured Active Directory domain.",
-                        Domain = domain,
-                        ResourceName = validationResult.ResourceName,
-                        Hostname = validationResult.Hostname,
-                        IpAddress = validationResult.IpAddress,
-                    },
-                });
-            }
-            // Domain validation
-            // try
-            // {
-            //     var domainCacheKey = $"domain_{validationResult.Hostname}";
-            //     if (!_cache.TryGetValue(domainCacheKey, out string domain))
-            //     {
-            //         domain = _domainService.GetDomainFromHostname(validationResult.Hostname);
-            //         _cache.Set(domainCacheKey, domain, _cacheDuration);
-            //     }
-            //     validationResult.Domain = domain;
-            //
-            //     if (string.IsNullOrEmpty(validationResult.Domain))
-            //     {
-            //         _auditLogger.ExecuteWithAudit(AuditType.NotFoundDomain, validationResult);
-            //         return Unauthorized(new {
-            //             ipAddress = validationResult.IpAddress,
-            //             auditCode = (int)AuditType.NotFoundDomain,
-            //             message = "Hostname not found in any configured Active Directory domain."
-            //         });
-            //     }
-            // }
-            // catch (Exception ex)
-            // {
-            //     validationResult.Message = ex.Message;
-            //     _auditLogger.ExecuteWithAudit(AuditType.NoAccessToDb, validationResult);
-            //     return StatusCode(401, new {
-            //         ipAddress = validationResult.IpAddress,
-            //         auditCode = (int)AuditType.NoAccessToDb,
-            //         error = ex.Message
-            //     });
-            // }
+                return HandleValidationFailure(validationResult, validationAgregatedResult);
+            } 
+
+            _auditLogger.ExecuteWithAudit(AuditType.Ok, validationResult);
+            return Ok(new { Data = validationResult, auditCode = (int)AuditType.Ok });
         }
-        
-        _cache.Set(cacheSuccessCompKey, computerAggregatedData, _cacheDuration);
-        validationResult.Domain = computerAggregatedData.Domain;
-        validationResult.Hostname = computerAggregatedData.ComputerName;
+        catch (UnauthorizedAccessException)
+        {
+            return HandleUnauthorizedAccess(validationResult);
+        }
+        catch (Exception ex)
+        {
+            return HandleException(validationResult, ex);
+        }
     }
-    catch (UnauthorizedAccessException)
+
+    private ValidationResultDto InitializeValidationResult(string? resource)
+    {
+        return new ValidationResultDto
+        {
+            IpAddress = _ipAddressService.ExtractIPv4(_ipAddressService.GetRequestIP()),
+            ResourceName = string.IsNullOrEmpty(resource) ? string.Empty : resource
+        };
+    }
+
+    private async Task<ValidationResultAgregated<EraComputerInfo>> GetComputerAggregatedValidationResult(
+        string ipAddress)
+    {
+        ValidationResultAgregated<EraComputerInfo>? validationAgregatedResult = null;
+        
+        string cacheSuccessCompKey = $"comp_data_{ipAddress}";
+
+        if (_cache.TryGetValue(cacheSuccessCompKey, out EraComputerInfo cachedData))
+        {
+            // validationAgregatedResult.Data = cachedData;
+            var successValidationResult = new ValidationResult<EraComputerInfo>();
+            var successValidationResults = new List<ValidationResult<EraComputerInfo>> () {successValidationResult};
+            validationAgregatedResult = new ValidationResultAgregated<EraComputerInfo>(cachedData, successValidationResult, successValidationResults  );
+            return validationAgregatedResult;
+        }
+
+        var validationResults = await _validationService.ValidateAsync(ipAddress);
+        
+        var priorityOrder = new List<AuditType> 
+        { 
+            AuditType.Ok, 
+            AuditType.NotFoundEset, 
+            AuditType.NotFoundDomain, 
+            AuditType.NotValidEsetTimespan,
+            AuditType.NotFound,
+        };
+        
+        var mostLessSeriousResult =  OrderValidationResultHelper.SelectValidationResultWithCustomPriority(validationResults, priorityOrder);
+            // validationResults.FirstOrDefault(data => data.IsValid) ??
+            //                          validationResults.OrderByDescending(data => data.AuditType)
+            //                              .FirstOrDefault(data => !data.IsValid);
+            //
+        
+        var computerData = mostLessSeriousResult?.Data ?? new EraComputerInfo { IpAddress = ipAddress };
+
+        if (mostLessSeriousResult?.IsValid == true)
+        {
+            _cache.Set(cacheSuccessCompKey, computerData, _cacheDuration);
+        }
+
+        return new ValidationResultAgregated<EraComputerInfo>(computerData, mostLessSeriousResult, validationResults);
+    }
+    
+    private ValidationResultDto MapValidationResultToDto(ValidationResultDto validationResult,
+        EraComputerInfo computerData)
+    {
+        return new ValidationResultDto
+        {
+            IpAddress = computerData.IpAddress,
+            Message = validationResult.Message,
+            ResourceName = validationResult.ResourceName,
+            Domain = computerData.Domain,
+            Hostname = computerData.ComputerName,
+            UserName = string.Empty
+        };
+    }
+
+    private ActionResult HandleValidationFailure(
+        ValidationResultDto validationResult,
+       ValidationResultAgregated<EraComputerInfo> validationResultAgregated)
+    {
+        AuditType auditType = (validationResultAgregated?.ValidationResult?.AuditType ?? AuditType.NotFound);
+        validationResult.Message =
+            validationResultAgregated?.ValidationResult?.ErrorMessage ?? "Not found general error";
+        
+        _auditLogger.ExecuteWithAudit(auditType, validationResult);
+        return Unauthorized(new
+        {
+            Data = validationResult,
+            auditCode = (int)auditType,
+            message = validationResult.Message,
+        });
+    }
+
+    private ActionResult HandleUnauthorizedAccess(ValidationResultDto validationResult)
     {
         _auditLogger.ExecuteWithAudit(AuditType.NotFoundEset, validationResult);
-        return Unauthorized(new { 
+        return Unauthorized(new
+        {
             ipAddress = validationResult.IpAddress,
             auditCode = (int)AuditType.NotFoundEset
         });
     }
-    catch (Exception ex)
+
+    private ActionResult HandleException(ValidationResultDto validationResult, Exception ex)
     {
         validationResult.Message = ex.Message;
         _auditLogger.ExecuteWithAudit(AuditType.NoAccessToDb, validationResult);
-        return StatusCode(401, new {
+        return StatusCode(401, new
+        {
             ipAddress = validationResult.IpAddress,
             auditCode = (int)AuditType.NoAccessToDb,
             error = ex.Message
         });
     }
-
-    // Successful validation
-    _auditLogger.ExecuteWithAudit(AuditType.Ok, validationResult);
-    return Ok(new {
-        Data = validationResult,
-        auditCode = (int)AuditType.Ok,
-    });
-}
 }

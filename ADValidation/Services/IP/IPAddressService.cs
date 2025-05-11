@@ -67,6 +67,7 @@ public class IPAddressService
         return false;
 
     }
+    
     public string ExtractIPv4(string input)
     {
         // Define the regex pattern for an IPv4 address

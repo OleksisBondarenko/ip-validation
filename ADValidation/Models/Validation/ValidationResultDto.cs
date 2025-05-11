@@ -1,6 +1,6 @@
 namespace ADValidation.Models;
 
-public class ValidationSuccessResult
+public class ValidationResultDto
 {
     public string IpAddress { get; set; } = string.Empty;
     public string Hostname { get; set; } = string.Empty;

@@ -1,8 +1,10 @@
 using System.ComponentModel;
+using ADValidation.Helpers.LDAP;
+using ADValidation.Services;
 
 namespace ADValidation.Models.ERA;
 
-public class ComputerAggregatedData
+public class EraComputerInfo
 {
     [DisplayName("computer_id")]
     public int ComputerId { get; set; }
@@ -20,15 +22,32 @@ public class ComputerAggregatedData
     public string IpAddress { get; set; } // IpV4address {0-255}.{0-255}.{0-255}.{0-255} or IpV6 extremely rare
     
     [DisplayName("domain")]
-    public string Domain { get; set; } // domain
+    public string Domain
+    {
+        get
+        {
+            return _domain;
+        }
+        set
+        {
+          _domain = value;  
+        } 
+    } // domain
 
-    public ComputerAggregatedData ()
+    private string _domain;
+    
+    public EraComputerInfo ()
     {
         this.ComputerId = 0;
         this.ComputerGUID = new byte[16];
         this.ComputerName = string.Empty;
         this.ComputerConnected = DateTime.MinValue;
         this.IpAddress = string.Empty;
+        this.Domain = string.Empty;
     }
 
+    public override string ToString()
+    {
+        return this.ComputerName;
+    }
 }
