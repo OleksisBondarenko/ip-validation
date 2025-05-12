@@ -1,0 +1,2 @@
+namespace ADValidation.Models.User;
+

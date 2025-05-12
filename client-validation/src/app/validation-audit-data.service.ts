@@ -7,7 +7,7 @@ import AuditDataModel from "./models/auditDataModel";
   providedIn: 'root',
 })
 export class ValidationAuditDataService {
-  private auditDataJsonURL = 'http://localhost:5001/Audit?orderBy=Timestamp&orderByDir=DESC&limit=100&start=0';
+  private auditDataJsonURL = 'http://localhost:5001/Audit?orderBy=Timestamp&orderByDir=ASC&limit=100&start=0';
 
   constructor(private http: HttpClient) {
 

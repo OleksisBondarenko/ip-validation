@@ -6,6 +6,9 @@ import {MatInput, MatInputModule} from "@angular/material/input";
 import {AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {log} from "@angular-devkit/build-angular/src/builders/ssr-dev-server";
 import {AuthService} from "../../auth/auth.service";
+import {tap} from "rxjs";
+import {Router} from "@angular/router";
+import {UserService} from "../../services/user.service";
 
 interface  LoginForm {
   username: FormControl<string | null>;
@@ -35,16 +38,15 @@ export class LoginPageComponent {
     username: new FormControl<string | null>("", [Validators.required, Validators.email]),
     password: new FormControl<string | null>("", [Validators.required, Validators.minLength(8)]),
   })
-
+  #privateVariable!: string;
   hide = signal(true);
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private userService: UserService, private router: Router) {
+    this.#privateVariable = "hello";
   }
 
 
   togglePasswordVisibility = () => {
-    this.authService.login("Admin1@admin.com", "Admin1@admin.com");
-
     this.hide.set(!this.hide());
   }
 
@@ -52,10 +54,17 @@ export class LoginPageComponent {
     event.preventDefault();
 
     const { username, password } = this.form.value;
-    const isValidForm = username && password && this.form.valid;
-
+    const isValidForm =  this.form.valid;
     if (isValidForm) {
-        this.authService.login(username, password)
+        this.authService.login(username!, password!)
+          .pipe(
+            tap((result) => {
+              this.userService
+                .fetchUserDetailed()
+                .subscribe();
+            })
+          )
+          .subscribe();
     }
   }
 }

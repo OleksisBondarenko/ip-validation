@@ -3,14 +3,7 @@
 
   </div>
 
-  @if (isLoading) {
-    <div class="loading-indicator" *ngIf="isLoading">
-      <mat-spinner diameter="40"></mat-spinner>
-      <span>Завантаження...</span>
-    </div>
-    } @else {
       <div class="list-wrapper">
         <app-audit-list></app-audit-list>
       </div>
-    }
 </div>

@@ -10,6 +10,7 @@ using ADValidation.Services.Validation;
 using AspNetCore.Proxy;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
@@ -29,11 +30,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
     {
-        options.Password.RequireDigit = true;
-        options.Password.RequiredLength = 8;
+        options.Password.RequireDigit = false;
+        options.Password.RequiredLength = 6;
         options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequireUppercase = true;
-        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireLowercase = false;
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
@@ -100,6 +101,13 @@ app.UseRouting();
 
 app.UseAuthentication();    // This must come before UseAuthorization
 app.UseAuthorization();     // This enables the [Authorize] attribute
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate(); // Apply migrations
+        
+}
 
 using (var scope = app.Services.CreateScope())
 {

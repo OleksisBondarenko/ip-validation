@@ -1,0 +1,16 @@
+
+<nav class="header-navbar">
+  <a >
+    main
+  </a>
+  <div class="flex-spacer"></div>
+  @if (isAuth()) {
+    <div class="example-button-container">
+      <button mat-mini-fab [matTooltip]="logoutTooltipText" color="#000000" aria-label="Вийти" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  } @else {
+
+  }
+</nav>

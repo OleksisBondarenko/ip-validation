@@ -51,6 +51,24 @@ public class AuthController : ControllerBase
         }
     }
 
+    [HttpGet("register")]
+    public async Task<IActionResult> Register([FromQuery]string? email, [FromQuery]string? password)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        {
+            return BadRequest("Username or password is empty");
+        }
+
+        var registerModel = new RegisterModel()
+        {
+            Email = email,
+            Password = password,
+            ConfirmPassword = password
+        };
+
+        return await Register(registerModel);
+    }
+
     // [HttpPost("refresh-token")]
     // public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     // {

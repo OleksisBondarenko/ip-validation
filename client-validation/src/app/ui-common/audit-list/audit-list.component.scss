@@ -9,19 +9,20 @@
     }
   }
 
-  .no-records {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px;
-    color: rgba(0, 0, 0, 0.54);
 
-    mat-icon {
-      width: 48px;
-      height: 48px;
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
+}
+.no-records {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  color: rgba(0, 0, 0, 0.54);
+
+  mat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+    margin-bottom: 16px;
   }
 }
 

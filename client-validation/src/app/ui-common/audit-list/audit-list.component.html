@@ -13,7 +13,9 @@
           <th mat-header-cell *matHeaderCellDef>Дія</th>
           <td mat-cell *matCellDef="let record">
             <div class="audit-type">
-              <mat-icon>security</mat-icon>
+              @if (record.auditType != -1) {
+                <mat-icon>security</mat-icon>
+              }
               <span>{{record.auditTypeString}}</span>
             </div>
           </td>
@@ -54,7 +56,7 @@
 
         <!-- Host Column -->
         <ng-container matColumnDef="host">
-          <th mat-header-cell *matHeaderCellDef>Ім'я хосту</th>
+          <th mat-header-cell *matHeaderCellDef>Назва АП в антивірусі</th>
           <td mat-cell *matCellDef="let record">
             {{record.auditData.hostName || 'N/A'}}
           </td>
@@ -67,13 +69,12 @@
       <hr>
 
       <mat-paginator
-                     #paginator
-                     [pageSizeOptions]="pageSizes"
-                     [length]="totalData"
-                     showFirstLastButtons
-                     aria-label="Select page of periodic elements">
+        #paginator
+        [pageSizeOptions]="pageSizes"
+        [length]="totalData"
+        showFirstLastButtons
+        aria-label="Select page of periodic elements">
       </mat-paginator>
-
     } @else {
       <div class="no-records">
         <mat-icon>info</mat-icon>

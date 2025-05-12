@@ -14,13 +14,5 @@ import {MatProgressSpinner} from "@angular/material/progress-spinner";
   styleUrls: ['./audit-page.component.scss']
 })
 export class AuditPageComponent {
-  public auditList: AuditRecordModel[] = [];
-  public searchTerm: string = '';
-  public currentPage: number = 1;
-  public itemsPerPage: number = 10;
-  public totalItems: number = 0;
-  public isLoading: boolean = false;
-
-  constructor(private auditRepo: AuditRepoService) {}
 
 }

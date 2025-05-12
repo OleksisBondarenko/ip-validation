@@ -2,8 +2,8 @@
   <form class="form" [formGroup]="form" (submit)="submit($event)">
 
     <mat-form-field>
-        <mat-label >  Username</mat-label>
-        <input matInput [formControlName]="'username'">
+      <mat-label >  Username</mat-label>
+      <input matInput [formControlName]="'username'">
       <mat-error >
         @if (form.controls.username.dirty && form.controls.username.getError("required")) {
           Ім'я має бути заповнене
@@ -18,7 +18,7 @@
     <mat-form-field>
       <mat-label>Enter your password</mat-label>
       <input matInput [formControlName]="'password'" [type]="hide() ? 'password' : 'text'">
-      <button mat-icon-button matSuffix (click)="togglePasswordVisibility()" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+      <button mat-icon-button matSuffix type="button" (click)="togglePasswordVisibility()" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
         <mat-icon >{{hide() ? 'visibility_off' : 'visibility'}}</mat-icon>
       </button>
       <mat-error >

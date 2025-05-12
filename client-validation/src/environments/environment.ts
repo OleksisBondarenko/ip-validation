@@ -34,6 +34,11 @@ export const environment: Environment = {
       label: 'Ip адреса'
     },
     {
+      type: 'text',
+      key: 'hostname',
+      label: 'Назва АП в антивірусі',
+    },
+    {
       type: 'selectMany',
       key: 'domain',
       label: 'Домен',
