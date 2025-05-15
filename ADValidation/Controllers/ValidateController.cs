@@ -1,13 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 using ADValidation.Decorators;
+using ADValidation.DTOs.AccessPolicy;
 using ADValidation.Enums;
 using ADValidation.Helpers.OrderHelper;
+using ADValidation.Helpers.Validators;
 using ADValidation.Models;
-using ADValidation.Models.Api;
 using ADValidation.Models.ERA;
 using ADValidation.Services;
+using ADValidation.Services.AccessPolicy;
 using ADValidation.Services.Validation;
-using ADValidation.Validators;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -27,11 +28,12 @@ public class ValidateController : ControllerBase
     private readonly TimeSpan _cacheDuration;
     private readonly ValidationSettings _validationSettings;
     private readonly ValidationService _validationService;
-
+    private readonly AccessPolicyService _accessPolicyService;
     public ValidateController(
         IPAddressService ipAddressService,
         AuditLoggerService auditLogger,
         ValidationService validationService,
+        AccessPolicyService accessPolicyService,
         IMemoryCache memoryCache,
         DomainService domainService,
         EraService eraService,
@@ -43,6 +45,7 @@ public class ValidateController : ControllerBase
         _validationService = validationService;
         _auditLogger = auditLogger;
         _ipAddressService = ipAddressService;
+        _accessPolicyService = accessPolicyService;
         _cache = memoryCache;
         _logger = logger;
         _domainService = domainService;
@@ -64,7 +67,6 @@ public class ValidateController : ControllerBase
                 await GetComputerAggregatedValidationResult(validationResult.IpAddress);
             
             validationResult = MapValidationResultToDto(validationResult, validationAgregatedResult.Data);
-
             if (!validationAgregatedResult.ValidationResult.IsValid)
             {
                 return HandleValidationFailure(validationResult, validationAgregatedResult);
@@ -107,8 +109,9 @@ public class ValidateController : ControllerBase
             validationAgregatedResult = new ValidationResultAgregated<EraComputerInfo>(cachedData, successValidationResult, successValidationResults  );
             return validationAgregatedResult;
         }
-
-        var validationResults = await _validationService.ValidateAsync(ipAddress);
+        
+        var validationResults = await _validationService.ValidateWithEraAsync(ipAddress);
+        
         
         var priorityOrder = new List<AuditType> 
         { 

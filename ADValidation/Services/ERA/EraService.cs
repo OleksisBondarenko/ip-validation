@@ -10,6 +10,7 @@ namespace ADValidation.Services;
 
 public class EraService
 {
+    private const int SQL_TIMEOUT_SECONDS = 5;
     // private readonly ERASettings _eraSettings;
     private readonly ILogger<EraService> _logger;
 
@@ -46,6 +47,11 @@ public class EraService
         {
             return await GetComputerInfo(connectionString, ipAddress);
         }
+        catch (TimeoutException ex)
+        {
+            _logger.LogError(ex, $"Timeout is over {SQL_TIMEOUT_SECONDS} seconds when tried to connect to {connectionString}");
+            return null;
+        }
         catch (UnauthorizedAccessException ex)
         {
             _logger.LogError(ex, $"Unauthorized access on connection: {connectionString}");
@@ -58,36 +64,54 @@ public class EraService
     }
 
     private async Task<EraComputerInfo> GetComputerInfo(string eraDbConnectionString, string ipAddress)
+{
+    // Create a cancellation token that will cancel after 5 seconds
+    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(SQL_TIMEOUT_SECONDS));
+    
+    try
     {
-        await using (var connection = new SqlConnection(eraDbConnectionString))
+        await using var connection = new SqlConnection(eraDbConnectionString);
+        
+        await connection.OpenAsync(cts.Token);
+        
+        var command = new SqlCommand(
+            @"SELECT tbl_computers.computer_id, tbl_computers.computer_uuid, 
+                     tbl_computers.computer_name, tbl_computers_aggr.computer_connected, 
+                     tbl_computers_aggr.ip_address 
+              FROM [tbl_computers_aggr] 
+              INNER JOIN tbl_computers ON tbl_computers.computer_id = tbl_computers_aggr.computer_id 
+              WHERE ip_address = @ip_address 
+              ORDER BY [computer_connected] DESC", 
+            connection);
+            
+        command.Parameters.AddWithValue("@ip_address", ipAddress);
+        
+        // Set command timeout (in seconds)
+        command.CommandTimeout = SQL_TIMEOUT_SECONDS;
+
+        await using var reader = await command.ExecuteReaderAsync(cts.Token);
+        
+        if (await reader.ReadAsync(cts.Token))
         {
-            await connection.OpenAsync();
-            var command = new SqlCommand(
-                $"SELECT tbl_computers.computer_id, tbl_computers.computer_uuid, tbl_computers.computer_name, tbl_computers_aggr.computer_connected, tbl_computers_aggr.ip_address " +
-                        "FROM [tbl_computers_aggr] " + 
-                        "INNER JOIN tbl_computers ON tbl_computers.computer_id = tbl_computers_aggr.computer_id " +
-                        "WHERE ip_address = @ip_address " +
-                        "ORDER BY [computer_connected] DESC"
-                
-                , connection);
-            command.Parameters.AddWithValue("@ip_address", ipAddress);
-
-            await using (var reader = await command.ExecuteReaderAsync())
+            return new EraComputerInfo()
             {
-                if (await reader.ReadAsync())
-                {
-                    return new EraComputerInfo ()
-                    {
-                        IpAddress = reader["ip_address"].ToString(),
-                        ComputerName = reader["computer_name"].ToString(),
-                        ComputerConnected = Convert.ToDateTime(reader["computer_connected"]),
-                        ComputerGUID = (byte[])reader["computer_uuid"],
-                        ComputerId = int.Parse(reader["computer_id"].ToString())
-                    };
-                }
-            }
+                IpAddress = reader["ip_address"].ToString(),
+                ComputerName = reader["computer_name"].ToString(),
+                ComputerConnected = Convert.ToDateTime(reader["computer_connected"]),
+                ComputerGUID = (byte[])reader["computer_uuid"],
+                ComputerId = int.Parse(reader["computer_id"].ToString())
+            };
         }
-
-        throw new UnauthorizedAccessException($"Provided IP address is not present in DB {ipAddress}");
     }
+    catch (TaskCanceledException)
+    {
+        throw new TimeoutException("Database operation timed out after 5 seconds");
+    }
+    catch (SqlException ex) when (ex.Number == -2) // -2 is SQL timeout error code
+    {
+        throw new TimeoutException("Database command timed out", ex);
+    }
+
+    throw new UnauthorizedAccessException($"Provided IP address is not present in DB {ipAddress}");
+}
 }

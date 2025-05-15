@@ -4,65 +4,39 @@ using ADValidation.Models;
 using ADValidation.Models.ERA;
 using ADValidation.Services;
 
-namespace ADValidation.Validators;
+namespace ADValidation.Helpers.Validators;
 
-public class Validator
+public class EraValidator: Validator
 {
     private readonly ValidationSettings _validationSettings;
     private readonly DomainService _domainService;
-
-    public static async Task<List<ValidationResult<T>>> ValidateDataAsync<T>(
-        List<Task<T?>> dataTasks,
-        List<ValidationFunc<T>> validators)
-    {
-        var results = new List<ValidationResult<T?>>();
-
-        foreach (var task in dataTasks)
-        {
-            var data = await task;
-            
-            // by default consider that validation result is valid and has not null data.
-            var lastValidationResult = ValidationResult<T?>.Success(data);
-            
-            foreach (var validator in validators)
-            {
-                var result = validator(data);
-                if (!result.IsValid)
-                    lastValidationResult = result;
-            }
-            
-            results.Add(lastValidationResult);
-        }
-
-        // TODO: change to valid.
-        return results;
-    }
     
-    public Validator(DomainService domainService, ValidationSettings validationSettings)
+    public EraValidator(DomainService domainService, ValidationSettings validationSettings)
     {
         _domainService = domainService;
         _validationSettings = validationSettings;
     }
-
-    public ValidationResult<EraComputerInfo?> ValidateIsComputerInWhitelist(EraComputerInfo? computerInfo)
-    {
-        if (computerInfo == null || string.IsNullOrWhiteSpace(computerInfo.IpAddress))
-        {
-            return ValidationResult<EraComputerInfo?>.Fail(
-                computerInfo,
-                AuditType.NotFound,
-                "IP address is null or computer info missing in whitelist."
-            );
-        }
-
-        return IsWhiteListIp(computerInfo.IpAddress)
-            ? ValidationResult<EraComputerInfo?>.Success(computerInfo, AuditType.OkWhiteListIp)
-            : ValidationResult<EraComputerInfo?>.Fail(
-                computerInfo,
-                AuditType.NotFound,
-                "IP address is not in whitelist."
-            );
-    }
+    
+    // public ValidationResult<EraComputerInfo?> ValidateIsComputerInWhitelist(EraComputerInfo? computerInfo)
+    // {
+    //     if (computerInfo == null || string.IsNullOrWhiteSpace(computerInfo.IpAddress))
+    //     {
+    //         return ValidationResult<EraComputerInfo?>.Fail(
+    //             computerInfo,
+    //             AuditType.NotFound,
+    //             "IP address is null or computer info missing in whitelist."
+    //         );
+    //     }
+    //
+    //     return IsWhiteListIp(computerInfo.IpAddress)
+    //         ? ValidationResult<EraComputerInfo?>.Success(computerInfo, AuditType.OkWhiteListIp)
+    //         : ValidationResult<EraComputerInfo?>.Fail(
+    //             computerInfo,
+    //             AuditType.NotFound,
+    //             "IP address is not in whitelist."
+    //         );
+    // }
+    
 
     public ValidationResult<EraComputerInfo?> ValidateIsComputerFound(EraComputerInfo? computerInfo)
     {
@@ -120,10 +94,5 @@ public class Validator
             );
     }
 
-    private bool IsWhiteListIp(string ip)
-    {
-        var whiteListReader = new WhiteListIpConfigReader(_validationSettings.WhiteListConfigPath);
-        var whiteListIps = whiteListReader.WhiteListIPs();
-        return whiteListIps.Contains(ip);
-    }
+ 
 }

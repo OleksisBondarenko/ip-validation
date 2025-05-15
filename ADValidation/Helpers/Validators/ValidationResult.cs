@@ -1,6 +1,6 @@
 using ADValidation.Enums;
 
-namespace ADValidation.Validators;
+namespace ADValidation.Helpers.Validators;
 
 public class ValidationResult<T> 
 {

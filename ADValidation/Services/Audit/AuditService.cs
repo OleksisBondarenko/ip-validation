@@ -20,18 +20,18 @@ public class AuditService
 
     public async Task CreateAsync(AuditRecord record)
     {
-        _context.AuditRecord.Add(record);
+        _context.AuditRecords.Add(record);
         await _context.SaveChangesAsync();
     }
 
     public async Task<AuditRecord> GetByIdAsync(Guid id)
     {
-        return await _context.AuditRecord.FindAsync(id);
+        return await _context.AuditRecords.FindAsync(id);
     }
 
     public async Task<IEnumerable<AuditRecord>> GetAllAsync(int page = 0, int pageSize = int.MaxValue)
     {
-        List<AuditRecord> allRecords = await _context.AuditRecord.Include(ar => ar.AuditData).ToListAsync();
+        List<AuditRecord> allRecords = await _context.AuditRecords.Include(ar => ar.AuditData).ToListAsync();
         return allRecords;
     }
     
@@ -43,7 +43,7 @@ public class AuditService
         int start,
         string search)
     {
-         var query = _context.AuditRecord
+         var query = _context.AuditRecords
             .Include(ar => ar.AuditData)
             .AsNoTracking()
             .AsQueryable();
@@ -84,7 +84,7 @@ public class AuditService
         string orderByDir,
         string search)
     {
-        var query = _context.AuditRecord
+        var query = _context.AuditRecords
             .Include(ar => ar.AuditData)
             .AsNoTracking()
             .AsQueryable();
@@ -249,7 +249,7 @@ public class AuditService
             "hostname" => query.Where(ar =>
                 ar.AuditData != null && // Ensure AuditData is not null
                 !string.IsNullOrEmpty(ar.AuditData.Hostname) && // Ensure IpAddress is not null
-                ar.AuditData.Hostname.Contains(value)), // Case-insensitive search
+                ar.AuditData.Hostname.Contains(value, StringComparison.OrdinalIgnoreCase)), // Case-insensitive search
             _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
         };
     }
@@ -273,7 +273,7 @@ public class AuditService
             "domain" => query.Where(ar =>
                 ar.AuditData != null && 
                 (inputSet.Contains(string.Empty) ||
-                inputSet.Contains(ar.AuditData.Domain))),
+                inputSet.Contains(ar.AuditData.Domain, StringComparer.OrdinalIgnoreCase))),
             _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
         };
     }
@@ -295,7 +295,7 @@ public class AuditService
             "resourcename" => query.Where(ar =>
                 ar.AuditData != null && // Ensure AuditData is not null
                 !string.IsNullOrEmpty(ar.ResourceName) && // Ensure IpAddress is not null
-                ar.ResourceName.Contains(value)), // Case-insensitive search
+                ar.ResourceName.Contains(value, StringComparison.OrdinalIgnoreCase)), // Case-insensitive search
             _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
         };
     }
@@ -389,16 +389,16 @@ public class AuditService
 
     public async Task UpdateAsync(AuditRecord record)
     {
-        _context.AuditRecord.Update(record);
+        _context.AuditRecords.Update(record);
         await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Guid id)
     {
-        var record = await _context.AuditRecord.FindAsync(id);
+        var record = await _context.AuditRecords.FindAsync(id);
         if (record != null)
         {
-            _context.AuditRecord.Remove(record);
+            _context.AuditRecords.Remove(record);
             await _context.SaveChangesAsync();
         }
     }
