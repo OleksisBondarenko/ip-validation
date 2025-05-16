@@ -1,6 +1,7 @@
 :host {
   display: flex;
   justify-content: center;
+  padding-top: 0.25rem;
 
   .header-navbar {
     max-width: 1200px;
@@ -21,4 +22,12 @@
   gap: 0.5rem;
 }
 
+.nav {
+  display: flex;
+  gap: 0.5rem;
+}
 
+.mdc-button.btn-active {
+  color: var(--app-color-btn-text-primary);
+  background-color: var( --app-color-btn-background-primary);
+}

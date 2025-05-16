@@ -28,7 +28,17 @@
         border: 1px solid #9a9a9c;
         border-radius: 4px;
         background-color: #f8f9fa;
-        color: #626363;
+        //color: rgba(0,0,0,0.6);
+        &::placeholder {
+          position: absolute;
+          left: -5px;
+          top: 20px;
+          padding: 0 20px;
+
+          font-size: 1rem;
+          color: rgba(0,0,0,0.6);
+
+        }
 
         :hover {
           border: 1px solid rgba(0, 0, 0, 0.87);

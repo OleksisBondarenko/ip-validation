@@ -56,8 +56,7 @@ export class UserService {
         this._loading.set(false);
         return of(null);
       }),
-    )
-      ;
+    );
   }
 
   clearUser(): void {
