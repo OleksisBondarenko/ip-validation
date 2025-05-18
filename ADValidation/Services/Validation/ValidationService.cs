@@ -1,8 +1,9 @@
 using ADValidation.Enums;
 using ADValidation.Helpers.Ip;
+using ADValidation.Helpers.Validators;
 using ADValidation.Models;
 using ADValidation.Models.ERA;
-using ADValidation.Validators;
+using ADValidation.Services.Policy;
 using Microsoft.Extensions.Options;
 
 namespace ADValidation.Services.Validation;
@@ -13,52 +14,42 @@ public class ValidationService
     private readonly DomainService _domainService;
     private readonly EraService _eraService;
     private readonly LDAPSettings _ldapSettings;
+    private readonly AccessPolicyService _accessPolicy;
     private readonly ValidationSettings _validationSettings;
-    private readonly Validator _validator;
+    private readonly EraValidator _eraValidator;
     private readonly ILogger<ValidationService> _logger;
 
 
-    public ValidationService(DomainService domainService,   EraService eraService, IOptions<ERASettings> eraSettings, IOptions<ValidationSettings> validationSettings, IOptions<LDAPSettings> ldapSettings)
+    public ValidationService(DomainService domainService,  AccessPolicyService accessPolicy,  EraService eraService, IOptions<ERASettings> eraSettings, IOptions<ValidationSettings> validationSettings, IOptions<LDAPSettings> ldapSettings)
     {
         _domainService = domainService;
         _eraService = eraService;
+        _accessPolicy = accessPolicy;
         _eraSettings = eraSettings.Value;
         _validationSettings = validationSettings.Value;
         _ldapSettings = ldapSettings.Value;
-        _validator = new Validator(_domainService, _validationSettings);
+        _eraValidator = new EraValidator(_domainService, _validationSettings);
     }
 
-    public async Task<List<ValidationResult<EraComputerInfo>>> ValidateAsync(string ipAddress)
+    public async Task<List<ValidationResult<EraComputerInfo>>> ValidateWithEraAsync(string ipAddress)
     {
         var tasks = _eraSettings.EraDbConnectionStrings.Select(connectionStringKV =>
             _eraService.GetComputerInfoSafe(connectionStringKV.Value, ipAddress)).ToList();
-        
-        var whiteListValidationResult = _validator.ValidateIsComputerInWhitelist(new EraComputerInfo() { IpAddress = ipAddress });
-        if (whiteListValidationResult.IsValid)
-        {
-            return new List<ValidationResult<EraComputerInfo>> { whiteListValidationResult };
-        }
+
 
         var validators = new List<ValidationFunc<EraComputerInfo>>
         {
-            _validator.ValidateIsComputerFound,
-            _validator.ValidateIsComputerInDomain,
-            _validator.ValidateIsComputerInEset,
-            _validator.ValidateIsComputerHasValidEsetTimestamp
+            _eraValidator.ValidateIsComputerFound,
+            _eraValidator.ValidateIsComputerInDomain,
+            _eraValidator.ValidateIsComputerInEset,
+            _eraValidator.ValidateIsComputerHasValidEsetTimestamp
         };
         
         var results = await Validator.ValidateDataAsync<EraComputerInfo>(tasks, validators);
+       
+        
+        
         return results;
-        //
-        // foreach (var result in results)
-        // {
-        //     if (result.IsValid)
-        //     {
-        //        return result;
-        //     }
-        // }
-        //
-        // return ValidationResultWithData<EraComputerInfo>.Fail(AuditType.NotFound, "General error");
     }
     
    

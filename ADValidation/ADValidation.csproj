@@ -36,20 +36,18 @@
         <PackageReference Include="System.DirectoryServices" Version="8.0.0" />
         <PackageReference Include="System.DirectoryServices.Protocols" Version="8.0.0" />
     </ItemGroup>
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="wwwroot\browser\chunk-WUOAN4MQ.js" />
-      <_ContentIncludedByDefault Remove="wwwroot\browser\chunk-ZOHU5VTJ.js" />
-      <_ContentIncludedByDefault Remove="wwwroot\browser\favicon.ico" />
-      <_ContentIncludedByDefault Remove="wwwroot\browser\index.html" />
-      <_ContentIncludedByDefault Remove="wwwroot\browser\main-RMI6AWVK.js" />
-      <_ContentIncludedByDefault Remove="wwwroot\browser\polyfills-FFHMD2TL.js" />
-      <_ContentIncludedByDefault Remove="wwwroot\browser\styles-IHLR3ZBD.css" />
-    </ItemGroup>
 
     <ItemGroup>
         <!-- Copy all files from the assets folder to the output directory -->
         <None Include="config\**\*">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Copy all files from the assets folder to the output directory -->
+        <None Include="wwwroot\**\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
     

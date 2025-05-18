@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ADValidation.Models.Auth;
+namespace ADValidation.DTOs.Auth;
 
-public class LoginModel
+public class AuthLoginRequest
 {
     [Required]
     public string Username { get; set; }

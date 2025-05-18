@@ -3,6 +3,7 @@ using System;
 using ADValidation.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,14 +11,16 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ADValidation.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class AuditDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250515172121_AddedAccessPolicy")]
+    partial class AddedAccessPolicy
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
 
-            modelBuilder.Entity("ADValidation.Models.AccessPolicy", b =>
+            modelBuilder.Entity("ADValidation.Models.Access.AccessPolicy", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -25,9 +28,6 @@ namespace ADValidation.Migrations
 
                     b.Property<int>("Action")
                         .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -44,19 +44,15 @@ namespace ADValidation.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<long>("Order")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("PolicyEndDatetime")
+                    b.Property<string>("Resource")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("PolicyStartDatetime")
+                    b.PrimitiveCollection<string>("Validators")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Order")
-                        .IsUnique();
 
                     b.ToTable("AccessPolicies");
                 });
@@ -343,7 +339,7 @@ namespace ADValidation.Migrations
 
             modelBuilder.Entity("AccessPolicyAuditRecord", b =>
                 {
-                    b.HasOne("ADValidation.Models.AccessPolicy", null)
+                    b.HasOne("ADValidation.Models.Access.AccessPolicy", null)
                         .WithMany()
                         .HasForeignKey("AccessPoliciesId")
                         .OnDelete(DeleteBehavior.Cascade)

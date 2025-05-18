@@ -4,10 +4,12 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using ADValidation.Data;
+using ADValidation.DTOs.Auth;
 using ADValidation.Models.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using LoginRequest = Microsoft.AspNetCore.Identity.Data.LoginRequest;
 
 namespace ADValidation.Services.Auth;
 
@@ -30,7 +32,7 @@ public class AuthService
         _context = context;
     }
 
-    public async Task<TokenResponse> LoginAsync(LoginModel model)
+    public async Task<TokenResponse> LoginAsync(AuthLoginRequest model)
     {
         var user = await _userManager.FindByEmailAsync(model.Username);
         if (user == null)
@@ -58,15 +60,15 @@ public class AuthService
         return token;
     }
 
-    public async Task<IdentityResult> RegisterAsync(RegisterModel model)
+    public async Task<IdentityResult> RegisterAsync(AuthRegisterRequest request)
     {
         var user = new ApplicationUser()
         {
-            UserName = model.Email,
-            Email = model.Email
+            UserName = request.Email,
+            Email = request.Email
         };
 
-        var result = await _userManager.CreateAsync(user, model.Password);
+        var result = await _userManager.CreateAsync(user, request.Password);
         return result;
     }
 

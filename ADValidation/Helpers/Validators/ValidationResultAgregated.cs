@@ -2,7 +2,7 @@ using System.Xml;
 using ADValidation.Enums;
 using Microsoft.IdentityModel.Tokens;
 
-namespace ADValidation.Validators;
+namespace ADValidation.Helpers.Validators;
 
 public class ValidationResultAgregated <T>
 {

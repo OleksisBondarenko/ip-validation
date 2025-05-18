@@ -6,12 +6,13 @@ using ADValidation.Models.Auth;
 using ADValidation.Models.ERA;
 using ADValidation.Services;
 using ADValidation.Services.Auth;
+using ADValidation.Services.Policy;
 using ADValidation.Services.Validation;
 using AspNetCore.Proxy;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,13 +28,13 @@ builder.Services.AddProxies();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole<long>>(options =>
     {
-        options.Password.RequireDigit = true;
-        options.Password.RequiredLength = 8;
+        options.Password.RequireDigit = false;
+        options.Password.RequiredLength = 6;
         options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequireUppercase = true;
-        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireLowercase = false;
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
@@ -75,6 +76,7 @@ builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddScoped<AuditService>();
 builder.Services.AddScoped<AuditLoggerService>();
+builder.Services.AddScoped<AccessPolicyService>();
 
 builder.Services.Configure<LDAPSettings>(builder.Configuration.GetSection("LDAPSettings"));
 builder.Services.Configure<ERASettings>(builder.Configuration.GetSection("ERASettings"));
@@ -105,6 +107,12 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.Migrate(); // Apply migrations
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate(); // Apply migrations
         
 }
 
@@ -120,6 +128,13 @@ if (app.Environment.IsDevelopment())
         await seeder.Seed();
     }
 }
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.WebRootPath, "browser", "assets")),
+    RequestPath = "/assets"
+});
 
 app.UseEndpoints(endpoints =>
 {

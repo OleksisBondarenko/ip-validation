@@ -1,4 +1,4 @@
-namespace ADValidation.Models.Auth;
+namespace ADValidation.DTOs.Auth;
 
 public class RefreshTokenRequest
 {

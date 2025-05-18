@@ -1,4 +1,5 @@
 
+using ADValidation.Models;
 using ADValidation.Models.Audit;
 using ADValidation.Models.Auth;
 using Microsoft.AspNetCore.Identity;
@@ -8,21 +9,21 @@ using Microsoft.EntityFrameworkCore.Sqlite;
 
 namespace ADValidation.Data;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<long>, long>
 {
     // public DbSet<RefreshToken> RefreshTokens { get; set; }
-    public DbSet<AuditRecord> AuditRecord { get; set; }
-    
+    public DbSet<AuditRecord> AuditRecords { get; set; }
+    public DbSet<AccessPolicy> AccessPolicies { get; set; }
+
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
-
+     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-
+        
         modelBuilder.Entity<AuditData>(entity =>
         {
             entity.HasKey(a => a.Id);
@@ -50,5 +51,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
             entity.Property(ar => ar.Timestamp).IsRequired();
         });
         
+        modelBuilder.Entity<AuditRecord>()
+            .HasMany(a => a.AccessPolicies)
+            .WithMany(p => p.AuditRecords)
+            .UsingEntity(j => j.ToTable("AuditRecordAccessPolicies"));
+        
+        modelBuilder.Entity<AccessPolicy>()
+            .HasIndex(e => e.Order)
+            .IsUnique();
     }
 }

@@ -1,3 +1,4 @@
+using ADValidation.DTOs.Auth;
 using ADValidation.Models.Auth;
 using ADValidation.Services.Auth;
 using Microsoft.AspNetCore.Authorization;
@@ -7,7 +8,7 @@ namespace ADValidation.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class AuthController : ControllerBase
+public class  AuthController : ControllerBase
 {
     private readonly AuthService _authService;
 
@@ -17,11 +18,11 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginModel model)
+    public async Task<IActionResult> Login([FromBody] AuthLoginRequest request)
     {
         try
         {   
-            var tokenResponse = await _authService.LoginAsync(model);
+            var tokenResponse = await _authService.LoginAsync(request);
             return Ok(tokenResponse);
         }
         catch (Exception ex)
@@ -31,11 +32,11 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterModel model)
+    public async Task<IActionResult> Register([FromBody] AuthRegisterRequest request)
     {
         try
         {
-            var result = await _authService.RegisterAsync(model);
+            var result = await _authService.RegisterAsync(request);
             
             if (!result.Succeeded)
             {
@@ -49,6 +50,24 @@ public class AuthController : ControllerBase
         {
             return BadRequest(new { message = ex.Message });
         }
+    }
+
+    [HttpGet("register")]
+    public async Task<IActionResult> Register([FromQuery]string? email, [FromQuery]string? password)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        {
+            return BadRequest("Username or password is empty");
+        }
+
+        var registerModel = new AuthRegisterRequest()
+        {
+            Email = email,
+            Password = password,
+            ConfirmPassword = password
+        };
+
+        return await Register(registerModel);
     }
 
     // [HttpPost("refresh-token")]

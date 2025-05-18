@@ -6,7 +6,7 @@ namespace ADValidation.DTOs.Audit;
 
 public class AuditRecordDTO
 {
-        public Guid Id { get; set; } 
+        public long Id { get; set; } 
         public AuditType AuditType { get; set; }
         public string AuditTypeString { get => AuditTypeHelper.GetAuditTypeString(this.AuditType);  }
         public AuditDataDTO AuditData { get; set; }
