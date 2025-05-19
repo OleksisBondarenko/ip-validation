@@ -1,7 +1,6 @@
 using ADValidation.Enums;
 using ADValidation.Helpers.Ip;
 using ADValidation.Models;
-using ADValidation.Models.Access;
 using ADValidation.Models.ERA;
 using ADValidation.Services;
 
@@ -29,10 +28,10 @@ public class PolicyValidator: Validator
 
         string[] allowedIpRules = _policy.IpFilterRules.ToArray();
 
-            bool isIpAllowed = FirewallIpMatcher.IsIpAllowed(ipAddress, allowedIpRules);
+            bool isIpAllowed = FirewallIpMatcher.IsIpInRule(ipAddress, allowedIpRules);
         
             return (isIpAllowed)
-            ? ValidationResult<string?>.Success(ipAddress, AuditType.OkWhiteListIp)
+            ? ValidationResult<string?>.Success(ipAddress, AuditType.AllowedByPolicy)
             : ValidationResult<string?>.Fail(
                 ipAddress,
                 AuditType.NotFound,

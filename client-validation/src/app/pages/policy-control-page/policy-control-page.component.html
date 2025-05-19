@@ -1,0 +1,289 @@
+<h1>Policy control page</h1>
+
+
+<div class="main-container">
+<!--  <div class="selected-section" >-->
+<!--    Обрана політика:-->
+
+<!--    @if (selectedPolicy.action === AccessAction.allow) {-->
+<!--      <mat-icon matListItemIcon>lock_open</mat-icon>-->
+<!--    } @else {-->
+<!--      <mat-icon matListItemIcon>lock</mat-icon>-->
+<!--    }-->
+
+<!--    <span class="list" matListItemLine>-->
+<!--               <div >{{selectedPolicy.name}}</div>-->
+<!--               <div >{{selectedPolicy.description}}</div>-->
+<!--             </span>-->
+
+<!--    <span class="list" matListItemLine>-->
+<!--                <div >{{selectedPolicy.isActive ? "Політика активна": "Політика не активна"}} </div>-->
+<!--                <div >Порядок застосування політики {{selectedPolicy.order}}</div>-->
+<!--              </span>-->
+
+<!--    <span class="list" >-->
+<!--              Правила фільтрації ip адреси:-->
+
+<!--      @for (ipRule of selectedPolicy.ipFilterRules; track ipRule) {-->
+<!--        <div matListItemLine>-->
+<!--                    {{ipRule}}-->
+<!--                  </div>-->
+<!--      }-->
+<!--              </span>-->
+<!--  </div>-->
+
+  <div class="create-section">
+    <h3>Нова політика</h3>
+
+    <label>
+      Назва:
+      <input [(ngModel)]="newPolicy.name" />
+    </label>
+    <br />
+
+    <label>
+      Опис:
+      <input [(ngModel)]="newPolicy.description" />
+    </label>
+    <br />
+
+    <label>
+      Активна:
+      <input type="checkbox" [(ngModel)]="newPolicy.isActive" />
+    </label>
+    <br />
+
+    <label>
+      Дія:
+      <select [(ngModel)]="newPolicy.action">
+        <option [ngValue]="AccessAction.allow">Дозволити</option>
+        <option [ngValue]="AccessAction.deny">Заборонити</option>
+      </select>
+    </label>
+    <br />
+
+    <label>
+      Порядок:
+      <input type="number" [(ngModel)]="newPolicy.order" />
+    </label>
+    <br />
+
+    <label>
+      Правила IP (через кому):
+      <input [(ngModel)]="newPolicyIpRulesString" />
+    </label>
+    <br />
+
+    <button (click)="createPolicy()">Створити</button>
+  </div>
+<mat-horizontal-stepper></mat-horizontal-stepper>
+  <hr>
+  <div class="edit-section">
+    <h3>Редагувати політику</h3>
+
+    <label>
+      Назва:
+      <input [(ngModel)]="selectedPolicy.name" />
+    </label>
+    <br />
+
+    <label>
+      Опис:
+      <input [(ngModel)]="selectedPolicy.description" />
+    </label>
+    <br />
+
+    <label>
+      Активна:
+      <input type="checkbox" [(ngModel)]="selectedPolicy.isActive" />
+    </label>
+    <br />
+
+    <label>
+      Дія:
+      <select [(ngModel)]="selectedPolicy.action">
+        <option [ngValue]="AccessAction.allow">Дозволити</option>
+        <option [ngValue]="AccessAction.deny">Заборонити</option>
+      </select>
+    </label>
+    <br />
+
+    <label>
+      Правила IP (через кому):
+      <input [(ngModel)]="ipRulesString" (ngModelChange)="onIpRulesChange($event)" />
+    </label>
+    <br />
+
+    <button (click)="updatePolicy()">Зберегти</button>
+  </div>
+<hr>
+<!--  <mat-grid-list cols="1">-->
+<!--    <mat-grid-tile >-->
+<!--      <mat-list class="policies">-->
+<!--        <div mat-subheader>Всі політики контролю доступу (застосовується політика, що задовільняє параметри зверху вниз!)</div>-->
+<!--        @for (policy of orderedPolicies; track policy.id; let last = $last) {-->
+<!--          <mat-list-item role="listitem" [class]="policy.isActive ? 'active-color': ''" (click)="setSelectedPolicy(policy)">-->
+<!--            @if (policy.action === AccessAction.allow) {-->
+<!--              <mat-icon matListItemIcon>lock_open</mat-icon>-->
+<!--            } @else {-->
+<!--              <mat-icon matListItemIcon>lock</mat-icon>-->
+<!--            }-->
+
+<!--             <span class="list" matListItemLine>-->
+<!--               <div >{{policy.name}}</div>-->
+<!--               <div >{{policy.description}}</div>-->
+<!--             </span>-->
+
+<!--            <span class="list" matListItemLine>-->
+<!--                <div >{{policy.isActive ? "Політика активна": "Політика не активна"}} </div>-->
+<!--                <div >Порядок застосування політики {{policy.order}}</div>-->
+<!--              </span>-->
+
+<!--            <span class="list" >-->
+<!--              Правила фільтрації ip адреси:-->
+
+<!--                @for (ipRule of policy.ipFilterRules; track ipRule) {-->
+<!--                  <div matListItemLine>-->
+<!--                    {{ipRule}}-->
+<!--                  </div>-->
+<!--                }-->
+<!--              </span>-->
+
+<!--            <span class="list" matListItemLine>-->
+<!--              <button mat-icon-button color="warn" (click)="deletePolicy(policy)">-->
+<!--              <mat-icon>delete</mat-icon>-->
+<!--            </button>-->
+<!--            </span>-->
+
+
+<!--&lt;!&ndash;                        <span class="list" matListItemLine>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div >Час створення: {{policy.createdOn | date}}</div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div >Час початку роботи: {{policy.createdOn | date}}</div>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <div >Час закінчення роботи: {{policy.createdOn | date}}</div>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </span>&ndash;&gt;-->
+<!--          </mat-list-item>-->
+<!--          @if (!last) {-->
+<!--            <mat-divider></mat-divider>-->
+<!--          }-->
+<!--        }-->
+<!--      </mat-list>-->
+<!--    </mat-grid-tile>-->
+<!--  </mat-grid-list>-->
+</div>
+
+@if (!!dataSource) {
+  <div class="main-container">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <!-- Name Column -->
+      <ng-container matColumnDef="name" >
+        <th mat-header-cell *matHeaderCellDef> Назва політики </th>
+        <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+      </ng-container>
+
+      <!-- Description Column -->
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef> Опис </th>
+        <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+      </ng-container>
+
+      <!-- IsActive Column -->
+      <ng-container matColumnDef="isActive">
+        <th mat-header-cell *matHeaderCellDef> Застосовується </th>
+        <td mat-cell *matCellDef="let element">
+          @if (element.isActive) {
+            <mat-icon>check</mat-icon>
+          } @else {
+            <mat-icon>block</mat-icon>
+            <!--            <mat-icon>close</mat-icon>-->
+          }
+
+        </td>
+      </ng-container>
+
+      <!-- Order Column -->
+      <ng-container matColumnDef="order">
+        <th mat-header-cell *matHeaderCellDef> Порядок застосування </th>
+        <td mat-cell *matCellDef="let element"> {{element.order}} </td>
+      </ng-container>
+
+      <!-- ipFilterRules Column -->
+      <ng-container matColumnDef="ipFilterRules">
+        <th mat-header-cell *matHeaderCellDef> Правила для IP фільтрації </th>
+        <td mat-cell *matCellDef="let element"> {{element.ipFilterRules}} </td>
+      </ng-container>
+
+      <!-- action Column -->
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef> Дія </th>
+        <td mat-cell *matCellDef="let element">
+          @if (element.action === AccessAction.allow) {
+            <mat-icon matListItemIcon>lock_open</mat-icon>
+          } @else {
+            <mat-icon matListItemIcon>lock</mat-icon>
+          }
+        </td>
+      </ng-container>
+
+      <!-- createdOn Column -->
+      <ng-container matColumnDef="createdOn">
+        <th mat-header-cell *matHeaderCellDef> Час створення </th>
+        <td mat-cell *matCellDef="let element"> {{element.createdOn | date}} </td>
+      </ng-container>
+
+            <!-- policyStartDateTime Column -->
+            <ng-container matColumnDef="policyStartDateTime">
+              <th mat-header-cell *matHeaderCellDef> policyStartDateTime </th>
+              <td mat-cell *matCellDef="let element"> {{element.policyStartDateTime | date}} </td>
+            </ng-container>
+
+            <!-- policyEndDateTime Column -->
+            <ng-container matColumnDef="policyEndDateTime">
+              <th mat-header-cell *matHeaderCellDef> policyEndDateTime </th>
+              <td mat-cell *matCellDef="let element"> {{element.policyEndDateTime | date}} </td>
+            </ng-container >
+
+      <!-- changeOrder Column -->
+      <ng-container matColumnDef="changeOrder">
+        <th mat-header-cell *matHeaderCellDef> Порядок </th>
+        <td mat-cell *matCellDef="let element">
+          <button mat-icon-button aria-label="Change order up" (click)="reorderPolicies(element, true)">
+            <mat-icon>arrow_upward</mat-icon>
+          </button>
+          <button mat-icon-button aria-label="Change order down" (click)="reorderPolicies(element, false)">
+            <mat-icon>arrow_downward</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+      <!-- tableAction Column -->
+      <ng-container matColumnDef="tableAction">
+        <th mat-header-cell *matHeaderCellDef> Додатково </th>
+        <td mat-cell *matCellDef="let element">
+          <button mat-button [color]="'green'" aria-label="Change order up">
+<!--            <mat-icon>Detailed</mat-icon>-->
+            Детально
+          </button>
+          <button mat-button [color]="'orange'" aria-label="Change order up" (click)="setSelectedPolicy(element)">
+<!--            <mat-icon>Edit</mat-icon>-->
+            Змінити
+          </button>
+          <button mat-button [color]="'red'" aria-label="Change order up" (click)="deletePolicy(element)">
+<!--            <mat-icon>Remove</mat-icon>-->
+            Видалити
+          </button>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <hr>
+
+    <mat-paginator
+      #paginator
+      [pageSizeOptions]="pageSizes"
+      [length]="totalData"
+      showFirstLastButtons
+      aria-label="Select page of periodic elements">
+    </mat-paginator>
+  </div>
+}

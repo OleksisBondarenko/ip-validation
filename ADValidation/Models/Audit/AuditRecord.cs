@@ -6,7 +6,7 @@ using ADValidation.Models.Access;
 namespace ADValidation.Models.Audit;
 
 public class AuditRecord
-{
+{   
     [Key]
     public long Id { get; set; }
     public AuditType AuditType { get; set; } = AuditType.NotFound;

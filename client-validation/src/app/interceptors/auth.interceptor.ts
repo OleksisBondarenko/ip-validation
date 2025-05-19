@@ -6,22 +6,23 @@ import {catchError, throwError} from "rxjs";
 let isAuthenticated = false;
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
-  const token = authService.authToken;
 
-  if (!token()) {
+  const token = authService.authtoken;
+
+  if (!token) {
     return next(req);
   }
 
   req = req.clone({
     setHeaders: {
-      Authorization: `Bearer ${token()}`
+      Authorization: `Bearer ${token}`
     }
   })
 
   return next(req)
     .pipe(
       catchError((err) => {
-        if (err.status === 401 && authService.isAuth()) {
+        if (err.status === 401 && authService.isAuth) {
           authService.logout();
         }
 

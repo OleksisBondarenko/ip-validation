@@ -3,7 +3,7 @@ using ADValidation.Helpers.Ip;
 using ADValidation.Helpers.Validators;
 using ADValidation.Models;
 using ADValidation.Models.ERA;
-using ADValidation.Services.AccessPolicy;
+using ADValidation.Services.Policy;
 using Microsoft.Extensions.Options;
 
 namespace ADValidation.Services.Validation;
@@ -33,15 +33,6 @@ public class ValidationService
 
     public async Task<List<ValidationResult<EraComputerInfo>>> ValidateWithEraAsync(string ipAddress)
     {
-
-        var whiteListValidationResult = await _accessPolicy.ValidateOnlyIpAddress(ipAddress);
-        if (whiteListValidationResult == AccessAction.Allow)
-        {
-            var minimalEraInfo = new EraComputerInfo { IpAddress = ipAddress };
-            var computerInfoResult = ValidationResult<EraComputerInfo>.Success(minimalEraInfo, AuditType.OkWhiteListIp);
-            return new List<ValidationResult<EraComputerInfo>> { computerInfoResult  };
-        }
-        
         var tasks = _eraSettings.EraDbConnectionStrings.Select(connectionStringKV =>
             _eraService.GetComputerInfoSafe(connectionStringKV.Value, ipAddress)).ToList();
 

@@ -6,12 +6,13 @@ using ADValidation.Models.Auth;
 using ADValidation.Models.ERA;
 using ADValidation.Services;
 using ADValidation.Services.Auth;
+using ADValidation.Services.Policy;
+using ADValidation.Services.Validation;
 using AspNetCore.Proxy;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,7 +28,7 @@ builder.Services.AddProxies();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole<long>>(options =>
     {
         options.Password.RequireDigit = false;
         options.Password.RequiredLength = 6;
@@ -75,6 +76,7 @@ builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddScoped<AuditService>();
 builder.Services.AddScoped<AuditLoggerService>();
+builder.Services.AddScoped<AccessPolicyService>();
 
 builder.Services.Configure<LDAPSettings>(builder.Configuration.GetSection("LDAPSettings"));
 builder.Services.Configure<ERASettings>(builder.Configuration.GetSection("ERASettings"));
@@ -82,6 +84,7 @@ builder.Services.Configure<ValidationSettings>(builder.Configuration.GetSection(
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IPAddressService>();
+builder.Services.AddScoped<ValidationService>();
 builder.Services.AddScoped<DomainService>();
 builder.Services.AddScoped<EraService>();
 builder.Services.AddScoped<SeederService>();
@@ -100,13 +103,11 @@ app.UseRouting();
 app.UseAuthentication();    // This must come before UseAuthorization
 app.UseAuthorization();     // This enables the [Authorize] attribute
 
-app.UseEndpoints(endpoints =>
+using (var scope = app.Services.CreateScope())
 {
-    endpoints.MapControllers();
-    
-    // Fallback to Angular's index.html for client-side routing
-    endpoints.MapFallbackToFile("/browser/index.html");
-});
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate(); // Apply migrations
+}
 
 using (var scope = app.Services.CreateScope())
 {
@@ -127,6 +128,22 @@ if (app.Environment.IsDevelopment())
         await seeder.Seed();
     }
 }
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.WebRootPath, "browser", "assets")),
+    RequestPath = "/assets"
+});
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    
+    // Fallback to Angular's index.html for client-side routing
+    endpoints.MapFallbackToFile("/browser/index.html");
+});
+
 
 app.MapControllers()
     .WithOpenApi();
