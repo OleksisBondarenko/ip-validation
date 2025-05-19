@@ -1,7 +1,7 @@
 using AutoMapper;
 using System.Collections.Generic;
 using ADValidation.DTOs.AccessPolicy;
-using ADValidation.Models.Access;
+using ADValidation.Models;
 
 namespace ADValidation.Mappers.AccessRule
 {

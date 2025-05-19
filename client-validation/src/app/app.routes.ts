@@ -4,6 +4,7 @@ import {LoginPageComponent} from "./pages/login-page/login-page.component";
 import {canActiveAuth} from "./guards/auth.guard";
 import {WhiteListPageComponent} from "./pages/white-list-page/white-list-page.component";
 import {LayoutAuthorizedComponent} from "./pages/layout-authorized/layout-authorized.component";
+import {PolicyControlPageComponent} from "./pages/policy-control-page/policy-control-page.component";
 
 export const routes: Routes = [
   {
@@ -17,7 +18,7 @@ export const routes: Routes = [
       },
       {
         path: 'white-list',
-        component: WhiteListPageComponent
+        component: PolicyControlPageComponent
       }
     ]
   },

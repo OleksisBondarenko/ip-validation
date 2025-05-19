@@ -15,8 +15,7 @@ public class WhiteListService
     private readonly ValidationSettings _validationSettings;
     private readonly EraValidator _validator;
     private readonly ILogger<ValidationService> _logger;
-
-
+    
     public WhiteListService(DomainService domainService,   EraService eraService, IOptions<ERASettings> eraSettings, IOptions<ValidationSettings> validationSettings, IOptions<LDAPSettings> ldapSettings)
     {
         _domainService = domainService;

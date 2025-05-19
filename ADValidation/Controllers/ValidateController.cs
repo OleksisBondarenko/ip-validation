@@ -7,7 +7,7 @@ using ADValidation.Helpers.Validators;
 using ADValidation.Models;
 using ADValidation.Models.ERA;
 using ADValidation.Services;
-using ADValidation.Services.AccessPolicy;
+using ADValidation.Services.Policy;
 using ADValidation.Services.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -63,15 +63,36 @@ public class ValidateController : ControllerBase
 
         try
         {
-            var  validationAgregatedResult =
-                await GetComputerAggregatedValidationResult(validationResult.IpAddress);
+            //TODO: put all logic into policy.
+            var policyResult = await _accessPolicyService.EvaluateIpAccessPolicy(validationResult.IpAddress);
             
-            validationResult = MapValidationResultToDto(validationResult, validationAgregatedResult.Data);
-            if (!validationAgregatedResult.ValidationResult.IsValid)
+            if (policyResult.IsApplied)
             {
-                return HandleValidationFailure(validationResult, validationAgregatedResult);
-            } 
+                if (policyResult.Action == AccessAction.Allow)
+                {
+                    validationResult.Message = "Allowed by policy ";
+                    _auditLogger.ExecuteWithAudit(AuditType.AllowedByPolicy, validationResult);
+                    return Ok(new { Data = validationResult, auditCode = (int)AuditType.AllowedByPolicy});
+                } else 
+                if (policyResult.Action == AccessAction.Deny)
+                {
+                    return HandleValidationFailure(validationResult, "Denied by policy ", AuditType.BlockedByPolicy );
+                }
+            } else 
+            {
+                var validationAgregatedResult =
+                        await GetComputerAggregatedValidationResult(validationResult.IpAddress);
 
+                    validationResult = MapValidationResultToDto(validationResult, validationAgregatedResult.Data);
+                    if (!validationAgregatedResult.ValidationResult.IsValid)
+                    {
+                        var auditType = validationAgregatedResult.ValidationResult.AuditType;
+                        var message = validationAgregatedResult.ValidationResult.ErrorMessage;
+
+                        return HandleValidationFailure(validationResult, message, auditType);
+                    }
+            }
+            
             _auditLogger.ExecuteWithAudit(AuditType.Ok, validationResult);
             return Ok(new { Data = validationResult, auditCode = (int)AuditType.Ok });
         }
@@ -113,7 +134,7 @@ public class ValidateController : ControllerBase
         var validationResults = await _validationService.ValidateWithEraAsync(ipAddress);
         
         
-        var priorityOrder = new List<AuditType> 
+        var eraPriority = new List<AuditType> 
         { 
             AuditType.Ok, 
             AuditType.NotFoundEset, 
@@ -122,20 +143,20 @@ public class ValidateController : ControllerBase
             AuditType.NotFound,
         };
         
-        var mostLessSeriousResult =  OrderValidationResultHelper.SelectValidationResultWithCustomPriority(validationResults, priorityOrder);
+        var okFirstVariant =  OrderValidationResultHelper.SelectValidationResultWithCustomPriority(validationResults, eraPriority);
             // validationResults.FirstOrDefault(data => data.IsValid) ??
             //                          validationResults.OrderByDescending(data => data.AuditType)
             //                              .FirstOrDefault(data => !data.IsValid);
             //
         
-        var computerData = mostLessSeriousResult?.Data ?? new EraComputerInfo { IpAddress = ipAddress };
+        var computerData = okFirstVariant?.Data ?? new EraComputerInfo { IpAddress = ipAddress };
 
-        if (mostLessSeriousResult?.IsValid == true)
+        if (okFirstVariant?.IsValid == true)
         {
             _cache.Set(cacheSuccessCompKey, computerData, _cacheDuration);
         }
 
-        return new ValidationResultAgregated<EraComputerInfo>(computerData, mostLessSeriousResult, validationResults);
+        return new ValidationResultAgregated<EraComputerInfo>(computerData, okFirstVariant, validationResults);
     }
     
     private ValidationResultDto MapValidationResultToDto(ValidationResultDto validationResult,
@@ -153,12 +174,11 @@ public class ValidateController : ControllerBase
     }
 
     private ActionResult HandleValidationFailure(
-        ValidationResultDto validationResult,
-       ValidationResultAgregated<EraComputerInfo> validationResultAgregated)
+       ValidationResultDto validationResult,
+       string errorMessage,
+       AuditType auditType = AuditType.NotFound)
     {
-        AuditType auditType = (validationResultAgregated?.ValidationResult?.AuditType ?? AuditType.NotFound);
-        validationResult.Message =
-            validationResultAgregated?.ValidationResult?.ErrorMessage ?? "Not found general error";
+        validationResult.Message = errorMessage ?? "Not found general error";
         
         _auditLogger.ExecuteWithAudit(auditType, validationResult);
         return Unauthorized(new

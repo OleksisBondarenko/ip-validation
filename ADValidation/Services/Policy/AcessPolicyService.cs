@@ -2,38 +2,40 @@ using System.Xml;
 using ADValidation.Data;
 using ADValidation.Enums;
 using ADValidation.Helpers.Ip;
+using ADValidation.Helpers.Policy;
 using ADValidation.Helpers.Validators;
 using ADValidation.Models;
 using ADValidation.Models.ERA;
-using ADValidation.Models.Access;
+using ADValidation.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace ADValidation.Services.AccessPolicy;
+namespace ADValidation.Services.Policy;
 
 public class AccessPolicyService 
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly ValidationSettings _validationSettings;
-    private List<Models.Access.AccessPolicy> _accessPolicies;
+    private List<AccessPolicy> _accessPolicies;
   
     
     public AccessPolicyService(
         ApplicationDbContext dbContext, 
-        IOptions<ValidationSettings> validationSettings)
+        IOptions<ValidationSettings> validationSettings
+        )
     {
         _dbContext = dbContext;
         _validationSettings = validationSettings.Value;
-        _accessPolicies = new List<Models.Access.AccessPolicy>();
+        _accessPolicies = new List<AccessPolicy>();
     }
 
-    private async Task<List<Models.Access.AccessPolicy>> GetAccessPolicies()
+    private async Task<List<AccessPolicy>> GetActivePolicies()
     {
         if (!_accessPolicies.Any())
         {
             _accessPolicies = await _dbContext.AccessPolicies
-                // .Where(policy => policy.IsActive)
+                .Where(policy => policy.IsActive)
                 // .Where(policy => policy.IpFilterRules.Any())
                 // .Where(policy => policy.Resource.IsNullOrEmpty())
                 // .Where(policy => policy.ValidationTypes.Contains(ValidatorType.Era))
@@ -45,7 +47,7 @@ public class AccessPolicyService
     }
 
     // Get all policies from DB
-    public async Task<List<Models.Access.AccessPolicy>> GetAllPoliciesAsync()
+    public async Task<List<AccessPolicy>> GetAllPoliciesAsync()
     {
         return await _dbContext.AccessPolicies.ToListAsync();
     }
@@ -56,43 +58,31 @@ public class AccessPolicyService
         throw new NotImplementedException();
     }
     
-    public async Task<AccessAction> ValidateOnlyIpAddress(string ipAddress)
+    public async Task<PolicyResult> EvaluateIpAccessPolicy(string ipAddress)
     {
-        var policies = await GetAccessPolicies();
-        policies.Add(PolicyFromConfig());
+        PolicyResult result = new PolicyResult();
+        var policies = await GetActivePolicies();
         
         foreach (var policy in policies)
         {
+            // var policy = policies[i];
             // Skip if no IP filter rules
             if (policy.IpFilterRules != null && policy.IpFilterRules.Any())
             {
-                bool ipAllowed = FirewallIpMatcher.IsIpAllowed(ipAddress, policy.IpFilterRules.ToArray());
-
-                if (!ipAllowed)
+                bool ipInRule = FirewallIpMatcher.IsIpInRule(ipAddress, policy.IpFilterRules.ToArray());
+        
+                if (ipInRule)
+                {
+                    result.IsApplied = true;
+                    result.Action = policy.Action;
+                    break;
+                } 
+                else
                     continue; // IP not allowed by this policy
             }
-
-            // IP is allowed → apply the policy's action
-            return policy.Action;
         }
 
-        // No matching policy found → deny by default
-        return AccessAction.Deny;
-    }
-
-    private Models.Access.AccessPolicy PolicyFromConfig ()
-    {
-        var whiteListReader = new WhiteListIpConfigReader(_validationSettings.WhiteListConfigPath);
-        var whiteListIps = whiteListReader.WhiteListIPs();
-
-        return new Models.Access.AccessPolicy()
-        {
-            Action = AccessAction.Allow,
-            Order = 1,
-            IpFilterRules = whiteListIps,
-            IsActive = true,
-            ValidationTypes = new List<ValidatorType> { ValidatorType.Ip },
-        };
+        return result;
     }
     
     private bool IsWhiteListIp(string ip)

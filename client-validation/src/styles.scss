@@ -1,10 +1,9 @@
-@import "./app/styles/reset.scss";
+/* You can add global styles to this file, and also import other style files */
 @import "./app/styles/dateTimePicker.scss";
-@import "./app/styles/fonts/fonts.scss";
+@import "./app/styles/fonts/material-icons.scss";
+@import "./app/styles/fonts/roboto.scss";
 @import "./app/styles/variables.scss";
+@import "./app/styles/reset.scss";
 
-html, body {
-  height: 100%;
-}
-
+html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

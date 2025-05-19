@@ -1,5 +1,5 @@
 
-using ADValidation.Models.Access;
+using ADValidation.Models;
 using ADValidation.Models.Audit;
 using ADValidation.Models.Auth;
 using Microsoft.AspNetCore.Identity;
@@ -23,8 +23,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-
+        
         modelBuilder.Entity<AuditData>(entity =>
         {
             entity.HasKey(a => a.Id);
@@ -57,5 +56,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
             .WithMany(p => p.AuditRecords)
             .UsingEntity(j => j.ToTable("AuditRecordAccessPolicies"));
         
+        modelBuilder.Entity<AccessPolicy>()
+            .HasIndex(e => e.Order)
+            .IsUnique();
     }
 }

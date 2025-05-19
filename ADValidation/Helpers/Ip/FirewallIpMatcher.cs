@@ -18,7 +18,7 @@ public static class FirewallIpMatcher
     /// <exception cref="FormatException">
     /// Thrown if the CIDR string is not in a valid format or contains invalid IP address or prefix length.
     /// </exception>
-    public static bool IsIpAllowed(string ipToCheck, string rule)
+    public static bool IsIpInRule(string ipToCheck, string rule)
     {
         var ip = IPAddress.Parse(ipToCheck);
 
@@ -55,7 +55,7 @@ public static class FirewallIpMatcher
     /// <exception cref="FormatException">
     /// Thrown if any of the input strings are not valid IP addresses.
     /// </exception>
-    public static bool IsIpAllowed(string ipToCheck, string startIp, string endIp)
+    public static bool IsIpInRule(string ipToCheck, string startIp, string endIp)
     {
         var ip = IPAddress.Parse(ipToCheck);
         return IsInIpRange(ip, IPAddress.Parse(startIp), IPAddress.Parse(endIp));
@@ -123,11 +123,11 @@ public static class FirewallIpMatcher
     /// <exception cref="FormatException">
     /// Thrown if any rule in the list is malformed or contains an invalid IP or CIDR.
     /// </exception>
-    public static bool IsIpAllowed(string ipToCheck, string[] rules)
+    public static bool IsIpInRule(string ipToCheck, string[] rules)
     {
         foreach (var rule in rules)
         {
-            if (IsIpAllowed(ipToCheck, rule))
+            if (IsIpInRule(ipToCheck, rule))
                 return true;
         }
 

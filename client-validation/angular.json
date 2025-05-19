@@ -20,10 +20,6 @@
           "options": {
             "outputPath": "dist/client-validation",
             "outputPath": "../ADValidation/wwwroot/",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
             "baseHref": "/browser/",
             "index": "src/index.html",
             "browser": "src/main.ts",
@@ -32,6 +28,10 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
             "styles": [
               "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.scss"

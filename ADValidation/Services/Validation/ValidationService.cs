@@ -3,7 +3,7 @@ using ADValidation.Helpers.Ip;
 using ADValidation.Helpers.Validators;
 using ADValidation.Models;
 using ADValidation.Models.ERA;
-using ADValidation.Services.AccessPolicy;
+using ADValidation.Services.Policy;
 using Microsoft.Extensions.Options;
 
 namespace ADValidation.Services.Validation;
@@ -18,8 +18,7 @@ public class ValidationService
     private readonly ValidationSettings _validationSettings;
     private readonly EraValidator _eraValidator;
     private readonly ILogger<ValidationService> _logger;
-
-
+    
     public ValidationService(DomainService domainService,  AccessPolicyService accessPolicy,  EraService eraService, IOptions<ERASettings> eraSettings, IOptions<ValidationSettings> validationSettings, IOptions<LDAPSettings> ldapSettings)
     {
         _domainService = domainService;
@@ -33,19 +32,9 @@ public class ValidationService
 
     public async Task<List<ValidationResult<EraComputerInfo>>> ValidateWithEraAsync(string ipAddress)
     {
-
-        var whiteListValidationResult = await _accessPolicy.ValidateOnlyIpAddress(ipAddress);
-        if (whiteListValidationResult == AccessAction.Allow)
-        {
-            var minimalEraInfo = new EraComputerInfo { IpAddress = ipAddress };
-            var computerInfoResult = ValidationResult<EraComputerInfo>.Success(minimalEraInfo, AuditType.OkWhiteListIp);
-            return new List<ValidationResult<EraComputerInfo>> { computerInfoResult  };
-        }
-        
         var tasks = _eraSettings.EraDbConnectionStrings.Select(connectionStringKV =>
             _eraService.GetComputerInfoSafe(connectionStringKV.Value, ipAddress)).ToList();
-
-
+        
         var validators = new List<ValidationFunc<EraComputerInfo>>
         {
             _eraValidator.ValidateIsComputerFound,
@@ -55,8 +44,6 @@ public class ValidationService
         };
         
         var results = await Validator.ValidateDataAsync<EraComputerInfo>(tasks, validators);
-       
-        
         
         return results;
     }

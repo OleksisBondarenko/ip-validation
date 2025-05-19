@@ -1,0 +1,37 @@
+.main-container {
+  //max-height: calc(100vh - 600px);
+  //margin-top: 10rem;
+}
+
+.policies {
+  flex: 1;
+  height: 100%;
+}
+
+.list {
+  display: flex;
+
+  div {
+    margin: 0 10px 0 0;
+  }
+}
+
+.selected-section {
+  background: #fafafa;
+  padding: 0.4rem 0.5rem;
+  border-radius: 3px;
+}
+
+.active-color {
+  .mat-icon {
+    color: black;
+  }
+
+  .mdc-list-item__secondary-text {
+    color: #000;
+  }
+}
+
+.not-active-color {
+
+}
