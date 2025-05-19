@@ -28,22 +28,6 @@ import { environment } from '../../../environments/environment';
 })
 export class AuditListComponent implements OnInit, AfterViewInit {
   filterConfig: FilterConfig [] = environment.filterConfig;
-
-  onFilterApply (filters: any[]) {
-    this.currentFilters = filters;
-
-    this.initPaginator();
-  }
-  onFilterChanged(filters: any[]) {
-    this.currentFilters = filters;
-    this.paginator.firstPage();
-  }
-
-  onFilterReset() {
-    this.currentFilters = [];
-    this.initPaginator();
-  }
-
   currentFilters: Filter [] = [];
   pageSizes = [5, 10, 20];
   isLoading = false;
@@ -59,6 +43,20 @@ export class AuditListComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
 
+  }
+  onFilterApply (filters: any[]) {
+    this.currentFilters = filters;
+
+    this.initPaginator();
+  }
+  onFilterChanged(filters: any[]) {
+    this.currentFilters = filters;
+    this.paginator.firstPage();
+  }
+
+  onFilterReset() {
+    this.currentFilters = [];
+    this.initPaginator();
   }
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;

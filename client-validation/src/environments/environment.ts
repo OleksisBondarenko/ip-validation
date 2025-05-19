@@ -1,5 +1,14 @@
 import {Environment} from "./environment.interface";
 
+//     Ok = 0,
+//     NotFound = 1,
+//     NotFoundDomain = 2,
+//     NotFoundEset = 3,
+//     NotValidEsetTimespan = 4,
+//     NoAccessToDb = 10,
+//     OkWhiteListIp = 21,
+//     BlockedByPolicy = 31
+
 export const environment: Environment = {
   production: false,
   apiUrl: "http://localhost:5001", // change when deploy.
@@ -16,7 +25,10 @@ export const environment: Environment = {
         { value: '3', label: 'Не знайдено в Eset' }, // NotFoundEset
         { value: '4', label: 'Відсутній агент Eset' }, // NotVlaidEsetTimespan
         { value: '10', label: 'Відсутнє з\'єднання з БД' }, // NoAccessToDB
+        { value: '21', label: 'Ok політика' }, // NoAccessToDB
+        { value: '31', label: 'Заблоковано політикою' }, // NoAccessToDB
       ]
+
     },
     {
       type: 'text',

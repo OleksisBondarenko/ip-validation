@@ -37,6 +37,14 @@ export class ApiService {
       );
   }
 
+  // PATCH request
+  patch<T>(endpoint: string, body: any): Observable<T> {
+    return this.http.patch<T>(`${this.apiUrl}/${endpoint}`, body)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
   // PUT request
   put<T>(endpoint: string, body: any): Observable<T> {
     return this.http.put<T>(`${this.apiUrl}/${endpoint}`, body)
