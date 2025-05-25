@@ -26,6 +26,8 @@ export const environment: Environment = {
         { value: '4', label: 'Відсутній агент Eset' }, // NotVlaidEsetTimespan
         { value: '10', label: 'Відсутнє з\'єднання з БД' }, // NoAccessToDB
         { value: '21', label: 'Дозволено політикою' }, // NoAccessToDB
+        { value: '22', label: 'Дозволено після декількох спроб' }, // NoAccessToDB
+        { value: '23', label: 'Дозволено. Запис був кешований' }, // NoAccessToDB
         { value: '31', label: 'Заблоковано політикою' }, // NoAccessToDB
       ]
 
