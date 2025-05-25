@@ -6,8 +6,8 @@ namespace ADValidation.Helpers.OrderHelper;
 
 public class OrderValidationResultHelper
 {
-    public static ValidationResult<T>? SelectValidationResultWithCustomPriority<T>(
-        IEnumerable<ValidationResult<T>> validationResults,
+    public static GeneralValidationResult<T>? SelectValidationResultWithCustomPriority<T>(
+        IEnumerable<GeneralValidationResult<T>> validationResults,
         List<AuditType> priorityOrder)
     {
         // Try to find the first valid result

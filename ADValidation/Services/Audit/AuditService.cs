@@ -249,7 +249,7 @@ public class AuditService
             "hostname" => query.Where(ar =>
                 ar.AuditData != null && // Ensure AuditData is not null
                 !string.IsNullOrEmpty(ar.AuditData.Hostname) && // Ensure IpAddress is not null
-                ar.AuditData.Hostname.Contains(value, StringComparison.OrdinalIgnoreCase)), // Case-insensitive search
+                ar.AuditData.Hostname.ToLower().Contains(value.ToLower())), // Case-insensitive search
             _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
         };
     }
@@ -295,7 +295,7 @@ public class AuditService
             "resourcename" => query.Where(ar =>
                 ar.AuditData != null && // Ensure AuditData is not null
                 !string.IsNullOrEmpty(ar.ResourceName) && // Ensure IpAddress is not null
-                ar.ResourceName.Contains(value, StringComparison.OrdinalIgnoreCase)), // Case-insensitive search
+                ar.ResourceName.ToLower().Contains(value.ToLower())), // Case-insensitive search
             _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
         };
     }

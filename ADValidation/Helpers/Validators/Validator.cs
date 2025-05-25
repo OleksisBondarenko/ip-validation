@@ -8,11 +8,11 @@ namespace ADValidation.Helpers.Validators;
 
 public class Validator
 {
-    public static async Task<List<ValidationResult<T>>> ValidateDataAsync<T>(
+    public static async Task<List<GeneralValidationResult<T>>> ValidateDataAsync<T>(
         List<Task<T?>> dataTasks,
         List<ValidationFunc<T>> validators)
     {
-        var results = new List<ValidationResult<T>>();
+        var results = new List<GeneralValidationResult<T>>();
         // Make a copy so we can remove as we go
         var pending = dataTasks.ToList();
 
@@ -26,7 +26,7 @@ public class Validator
             var data = await completed;
 
             // Validate
-            var validationResult = ValidationResult<T>.Success(data);
+            var validationResult = GeneralValidationResult<T>.Success(data);
             foreach (var validator in validators)
             {
                 validationResult = validator(data);
@@ -39,7 +39,7 @@ public class Validator
             // If valid, bail out immediately:
             if (validationResult.IsValid)
             {
-                return new List<ValidationResult<T>> { validationResult };
+                return new List<GeneralValidationResult<T>> { validationResult };
             }
 
             // Otherwise collect the failure and continue
@@ -54,11 +54,11 @@ public class Validator
         List<T?> dataList,
         List<ValidationFunc<T>> validators)
     {
-        var results = new List<ValidationResult<T>>();
+        var results = new List<GeneralValidationResult<T>>();
 
         foreach (var data in dataList)
         {
-            var validationResult = ValidationResult<T>.Success(data);
+            var validationResult = GeneralValidationResult<T>.Success(data);
 
             foreach (var validator in validators)
             {
@@ -72,7 +72,7 @@ public class Validator
             // If one is valid, return immediately
             if (validationResult.IsValid)
             {
-                results = new List<ValidationResult<T>> { validationResult };
+                results = new List<GeneralValidationResult<T>> { validationResult };
                 return true;
             }
 

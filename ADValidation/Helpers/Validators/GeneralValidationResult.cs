@@ -4,31 +4,45 @@ using ADValidation.Models;
 
 namespace ADValidation.Helpers.Validators;
 
-public class ADValidationResult<T> 
+public class GeneralValidationResult<T> 
 {
-    public bool IsValid { get; set; } = true;
-    public string ErrorMessage { get; set; } = string.Empty;
+    public bool IsValid
+    {
+        get
+        {
+            return AuditTypeHelper.GetAuditTypeAllowed(AuditType);
+        }
+    }
+
+    public string ErrorMessage
+    {
+        get
+        {
+            return AuditTypeHelper.GetAuditTypeString(AuditType);
+        }
+    }
+
     public AuditType AuditType { get; set; } = AuditType.Ok;
     public T? Data { get; set; } = default!;
     
-    public ADValidationResult ()
+    public GeneralValidationResult ()
     {
         
     }
     
-    public static ADValidationResult<T> Success(T? data, AuditType auditType = AuditType.Ok) => new()
+    public static GeneralValidationResult<T> Success(T? data, AuditType auditType = AuditType.Ok) => new()
     {
-        IsValid = true,
+        // IsValid = true,
         Data = data,
         AuditType = auditType,
-        ErrorMessage = string.Empty,
+        // ErrorMessage = string.Empty,
     };
 
-    public static ADValidationResult<T> Fail(T? data, AuditType auditType, string errorMessage) => new()
+    public static GeneralValidationResult<T> Fail(T? data, AuditType auditType, string errorMessage) => new()
     {
         Data = data,
-        IsValid = false,
+        // IsValid = false,
         AuditType = auditType,
-        ErrorMessage = errorMessage
+        // ErrorMessage = errorMessage
     };
 }

@@ -38,17 +38,27 @@ public class EraValidator: Validator
     // }
     
 
-    public ValidationResult<EraComputerInfo?> ValidateIsComputerFound(EraComputerInfo? computerInfo)
+    public GeneralValidationResult<EraComputerInfo?> ValidateIsEraDbConnectionEstablished(EraComputerInfo? computerInfo)
     {
         return computerInfo == null
-            ? ValidationResult<EraComputerInfo?>.Fail(
+            ? GeneralValidationResult<EraComputerInfo?>.Fail(
+                computerInfo, 
+                AuditType.NoAccessToDb,
+                "ESET ERA Database is disabled...")
+            : GeneralValidationResult<EraComputerInfo?>.Success(computerInfo);
+    }
+    
+    public GeneralValidationResult<EraComputerInfo?> ValidateIsComputerFound(EraComputerInfo? computerInfo)
+    {
+        return computerInfo != null && computerInfo.ComputerId == 0
+            ? GeneralValidationResult<EraComputerInfo?>.Fail(
                 computerInfo, 
                 AuditType.NotFoundEset,
                 "Computer not found in ESET ERA Database")
-            : ValidationResult<EraComputerInfo?>.Success(computerInfo);
+            : GeneralValidationResult<EraComputerInfo?>.Success(computerInfo);
     }
 
-    public ValidationResult<EraComputerInfo?> ValidateIsComputerInDomain(EraComputerInfo? computerInfo)
+    public GeneralValidationResult<EraComputerInfo?> ValidateIsComputerInDomain(EraComputerInfo? computerInfo)
     {
         if (computerInfo == null)
         {
@@ -59,22 +69,22 @@ public class EraValidator: Validator
         computerInfo.Domain = domain;
         
         return string.IsNullOrWhiteSpace(domain)
-            ? ValidationResult<EraComputerInfo?>.Fail(
+            ? GeneralValidationResult<EraComputerInfo?>.Fail(
                 computerInfo,
                 AuditType.NotFoundDomain,
                 "Computer name in ERA has invalid domain suffix."
             )
-            : ValidationResult<EraComputerInfo?>.Success(computerInfo);
+            : GeneralValidationResult<EraComputerInfo?>.Success(computerInfo);
     }
 
-    public ValidationResult<EraComputerInfo?> ValidateIsComputerInEset(EraComputerInfo? computerInfo)
+    public GeneralValidationResult<EraComputerInfo?> ValidateIsComputerInEset(EraComputerInfo? computerInfo)
     {
         return computerInfo == null
             ? ValidateIsComputerFound(computerInfo)
-            : ValidationResult<EraComputerInfo?>.Success(computerInfo);
+            : GeneralValidationResult<EraComputerInfo?>.Success(computerInfo);
     }
 
-    public ValidationResult<EraComputerInfo?> ValidateIsComputerHasValidEsetTimestamp(EraComputerInfo? computerInfo)
+    public GeneralValidationResult<EraComputerInfo?> ValidateIsComputerHasValidEsetTimestamp(EraComputerInfo? computerInfo)
     {
         if (computerInfo == null)
         {
@@ -86,8 +96,8 @@ public class EraValidator: Validator
         bool isValidTimestamp = allowedTime >= DateTime.Now;
 
         return isValidTimestamp
-            ? ValidationResult<EraComputerInfo?>.Success(computerInfo)
-            : ValidationResult<EraComputerInfo?>.Fail(
+            ? GeneralValidationResult<EraComputerInfo?>.Success(computerInfo)
+            : GeneralValidationResult<EraComputerInfo?>.Fail(
                     computerInfo,
                 AuditType.NotValidEsetTimespan,
                 $"Computer wasn't online in ESET ERA more than {TimeSpan.FromMilliseconds(eraTimespanMilis)} ago."

@@ -10,7 +10,7 @@ namespace ADValidation.Services;
 
 public class EraService
 {
-    private const int SQL_TIMEOUT_SECONDS = 5;
+    private const int SQL_TIMEOUT_SECONDS = 2;
     // private readonly ERASettings _eraSettings;
     private readonly ILogger<EraService> _logger;
 
@@ -101,7 +101,9 @@ public class EraService
                 ComputerGUID = (byte[])reader["computer_uuid"],
                 ComputerId = int.Parse(reader["computer_id"].ToString())
             };
-        }
+        } 
+        
+        return new EraComputerInfo();
     }
     catch (TaskCanceledException)
     {

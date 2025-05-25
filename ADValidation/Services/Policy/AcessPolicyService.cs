@@ -13,17 +13,17 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace ADValidation.Services.Policy;
 
-public class AccessPolicyService 
+public class AccessPolicyService
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly ValidationSettings _validationSettings;
     private List<AccessPolicy> _accessPolicies;
-  
-    
+
+
     public AccessPolicyService(
-        ApplicationDbContext dbContext, 
+        ApplicationDbContext dbContext,
         IOptions<ValidationSettings> validationSettings
-        )
+    )
     {
         _dbContext = dbContext;
         _validationSettings = validationSettings.Value;
@@ -54,43 +54,40 @@ public class AccessPolicyService
 
     public async Task<bool> ValidatePreData(string ipAddress)
     {
-
         throw new NotImplementedException();
     }
-    
+
     public async Task<PolicyResult> EvaluateIpAccessPolicy(string ipAddress)
     {
         PolicyResult result = new PolicyResult();
         var policies = await GetActivePolicies();
-        
+
         foreach (var policy in policies)
         {
             // var policy = policies[i];
             // Skip if no IP filter rules
-            if (policy.IpFilterRules != null && policy.IpFilterRules.Any())
+            if (policy.IpFilterRules == null || !policy.IpFilterRules.Any())
             {
-                bool ipInRule = FirewallIpMatcher.IsIpInRule(ipAddress, policy.IpFilterRules.ToArray());
-        
-                if (ipInRule)
-                {
-                    result.IsApplied = true;
-                    result.Action = policy.Action;
-                    break;
-                } 
-                else
-                    continue; // IP not allowed by this policy
+                continue;
+            }
+
+            bool ipInRule = FirewallIpMatcher.IsIpInRule(ipAddress, policy.IpFilterRules.ToArray());
+
+            if (ipInRule)
+            {
+                result.IsApplied = true;
+                result.Action = policy.Action;
+                break;
             }
         }
 
         return result;
     }
-    
+
     private bool IsWhiteListIp(string ip)
     {
         var whiteListReader = new WhiteListIpConfigReader(_validationSettings.WhiteListConfigPath);
         var whiteListIps = whiteListReader.WhiteListIPs();
         return whiteListIps.Contains(ip);
     }
-
 }
-

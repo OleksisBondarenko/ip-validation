@@ -1,3 +1,3 @@
 namespace ADValidation.Helpers.Validators;
 
-public delegate ValidationResult<TInput?> ValidationFunc<TInput>(TInput input);
+public delegate GeneralValidationResult<TInput?> ValidationFunc<TInput>(TInput input);

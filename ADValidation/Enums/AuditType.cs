@@ -9,11 +9,14 @@ public enum AuditType
     // public const string NotFoundDomain = "NotFoundDomain";
     
     Ok = 0,
+    AllowedByPolicy = 21,
+    AllowedAfterRetry  = 22,
+    AllowedByCache  = 23,
+
     NotFound = 1,
     NotFoundDomain = 2,
     NotFoundEset = 3,
     NotValidEsetTimespan = 4,
     NoAccessToDb = 10,
-    AllowedByPolicy = 21,
-    BlockedByPolicy = 31
+    BlockedByPolicy = 31,
 }
