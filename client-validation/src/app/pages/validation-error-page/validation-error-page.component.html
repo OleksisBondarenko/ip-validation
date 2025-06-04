@@ -1,0 +1,20 @@
+
+@if (!isReachedMaxCount) {
+<div>
+  <p>Виникла помилка при перевірці Ваших даних.</p>
+  <p>Будь - ласка зверніться за допомогою до чергового 00 для виявлення та усунення проблеми</p>
+  <p>або</p>
+  <p>Будь - ласка зверніться за допомогою до чергового 00 для виявлення та усунення проблеми</p>
+
+  <button mat-flat-button (click)="resetValidateCount()" color="primary">Спробувати перевірити дані ще раз.</button>
+</div>
+}
+<p>Спроба валідувати {{currentValidateCount}} з {{maxValidateCount}}</p>
+
+<p>
+  info from result:
+  {{validationResult()?.body?.hostname}}
+  {{validationResult() | json}}
+</p>
+
+<button mat-flat-button [disabled]="!isValid" color="primary">Перейти на ресурс {{resource}}</button>
