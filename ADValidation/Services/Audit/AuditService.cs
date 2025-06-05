@@ -34,6 +34,16 @@ public class AuditService
         List<AuditRecord> allRecords = await _context.AuditRecords.Include(ar => ar.AuditData).ToListAsync();
         return allRecords;
     }
+
+    public async Task<IEnumerable<string>> GetRecordedDomainsAsync()
+    {
+        return await _context.AuditRecords
+            .Include(r => r.AuditData)
+            .Where(r => r.AuditData != null && !string.IsNullOrEmpty(r.AuditData.Domain))
+            .Select(r => r.AuditData.Domain)
+            .Distinct()
+            .ToListAsync();
+    }
     
      public async Task<IEnumerable<AuditRecord>> GetAllFilteredAsync(
         List<Filter> filters,
@@ -262,18 +272,18 @@ public class AuditService
             throw new ArgumentException("Filter value for IP address cannot be null or empty.");
         }
 
-        List<string> inputs = JsonSerializer.Deserialize<List<string>>(filter.Value.Input) 
+        List<string> inputs = JsonSerializer.Deserialize<List<string>>(filter.Value.Input)
                               ?? throw new ArgumentNullException(nameof(filter.Value.Input), "Input cannot be null");
 
         // Create a HashSet for O(1) lookups (case-insensitive)
-        var inputSet = new HashSet<string>(inputs, StringComparer.OrdinalIgnoreCase);
-
+        var inputSet = new HashSet<string>(inputs.Select(input => input.ToLower()));
+        
         return filter.Alias.ToLowerInvariant() switch
         {
             "domain" => query.Where(ar =>
                 ar.AuditData != null && 
                 (inputSet.Contains(string.Empty) ||
-                inputSet.Contains(ar.AuditData.Domain, StringComparer.OrdinalIgnoreCase))),
+                inputSet.Contains(ar.AuditData.Domain.ToLower()))),
             _ => throw new ArgumentException($"Unsupported string field: {filter.Alias}")
         };
     }

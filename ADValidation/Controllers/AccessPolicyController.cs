@@ -72,13 +72,13 @@ public class AccessPolicyController : ControllerBase
         // entity.Resource = updateDto.Resource;
         // entity.ValidationTypes = updateDto.Validators;
         
-        await HandleProperOrder(entity);
+        // await HandleProperOrder(entity);
         await _context.SaveChangesAsync();
 
         return NoContent();
     }
     
-   [HttpPatch("reorder")]
+[HttpPatch("reorder")]
 public async Task<IActionResult> ReorderPolicy([FromBody] ReorderPolicyDto request)
 {
     var policy = await _context.AccessPolicies

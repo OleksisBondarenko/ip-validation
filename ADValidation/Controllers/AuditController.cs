@@ -1,6 +1,8 @@
 using ADValidation.Decorators;
 using ADValidation.DTOs.Audit;
+using ADValidation.DTOs.Filter;
 using ADValidation.Enums;
+using ADValidation.Helpers.Audit;
 using ADValidation.Mappers.Audit;
 using ADValidation.Models;
 using ADValidation.Models.Filter;
@@ -158,6 +160,47 @@ public class AuditController : ControllerBase
         }
     }
 
+    [HttpGet("filter")]
+    public async Task<IActionResult> GetFilterConfig()
+    {
+        var auditTypesInfo = AuditTypeHelper.GetAllAuditTypeInfos();
+        var recordedDomains = await _auditService.GetRecordedDomainsAsync();
+        
+        var filterConfig = new List<FilterConfigItem>
+        {
+            new FilterConfigItem
+            {
+                Type = "selectMany",
+                Key = "auditType",
+                Label = "Тип аудиту",
+                Options = auditTypesInfo.Select(auditType => new FilterOptionItem { Value = ((int)auditType.Type).ToString(), Label = auditType.DisplayName}).ToList()
+            },
+            new FilterConfigItem { Type = "text", Key = "resourceName", Label = "Назва ресурсу" },
+            new FilterConfigItem { Type = "date", Key = "timestamp", Label = "Проміжок часу" },
+            new FilterConfigItem { Type = "text", Key = "ipAddress", Label = "Ip адреса" },
+            new FilterConfigItem { Type = "text", Key = "hostname", Label = "Назва машини" },
+            new FilterConfigItem
+            {
+                Type = "selectMany",
+                Key = "domain",
+                Label = "Домен",
+                Options = recordedDomains
+                    .Select(domain => new FilterOptionItem { Label = domain, Value = domain })
+                    .Concat(new List<FilterOptionItem> () {new FilterOptionItem { Value = "", Label = "Усі" }})
+                    .ToList()
+            }
+        };
+
+        return Ok(filterConfig);
+    }
+
+    [HttpGet("filter/auditTypes")] 
+    public ActionResult<IEnumerable<AuditTypeInfo>> GetAuditTypes ()
+    {
+        var auditTypes = AuditTypeHelper.GetAllAuditTypeInfos();
+        return Ok(auditTypes); 
+    }
+    
     public class ResponseGetListAudit
     {
         public IEnumerable<AuditRecordDTO> Data { get; set; }

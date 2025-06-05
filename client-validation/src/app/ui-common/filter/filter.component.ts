@@ -11,6 +11,7 @@ import {MatButton, MatButtonModule} from "@angular/material/button";
 
 
 import {OwlDateTimeModule, OwlNativeDateTimeModule} from "@danielmoncada/angular-datetime-picker";
+import {map, Observable, of} from "rxjs";
 
 export interface FilterConfig {
   type: 'text' | 'date' | 'select' | 'selectMany';
@@ -44,7 +45,7 @@ export type FilterType = FilterConfig['type']
   styleUrls: ['./filter.component.scss']
 })
 export class FilterComponent implements OnInit {
-  @Input() filterConfig: FilterConfig[] = [];
+  @Input() filterConfig: Observable<FilterConfig[]> = of([]);
   @Output() filterChanged = new EventEmitter<any>();
   @Output() filterReset = new EventEmitter<void>();
   @Output() filterApply = new EventEmitter<any>();
@@ -63,13 +64,19 @@ export class FilterComponent implements OnInit {
   }
 
   private createFormControls() {
-    this.filterConfig.forEach(config => {
-      // if (config.type === 'date') {
-      //   this.filterForm.addControl(`${config.key}_from`, this.fb.control(''));
-      //   this.filterForm.addControl(`${config.key}_to`, this.fb.control(''));
-      // } else {
-        this.filterForm.addControl(config.key, this.fb.control(''));
-      // }
+    if (!this.filterConfig) {
+      return;
+    }
+
+    this.filterConfig.subscribe(configs => {
+          configs.forEach(config => {
+          // if (config.type === 'date') {
+          //   this.filterForm.addControl(`${config.key}_from`, this.fb.control(''));
+          //   this.filterForm.addControl(`${config.key}_to`, this.fb.control(''));
+          // } else {
+            this.filterForm.addControl(config.key, this.fb.control(''));
+          // }
+        })
     });
   }
 
@@ -95,20 +102,26 @@ export class FilterComponent implements OnInit {
   }
 
   private parseFilters(formValue: any): any[] {
+    // if (!this.filterConfig) {
+    //   return [];
+    // }
+
     const filters: any[] = [];
 
-    this.filterConfig.forEach(config => {
-      const value = formValue?.[config.key];
-      const from = value?.from;
-      const to = value?.to;
+    this.filterConfig.subscribe(configs => {
+      configs.forEach(config => {
+        const value = formValue?.[config.key];
+        const from = value?.from;
+        const to = value?.to;
 
-      if (value || (from || to)) {
-        filters.push({
-          type: this.getFilterType(config.type),
-          alias: config.key,
-          value: this.createFilterValue(config.type, value, from, to)
-        });
-      }
+        if (value || (from || to)) {
+          filters.push({
+            type: this.getFilterType(config.type),
+            alias: config.key,
+            value: this.createFilterValue(config.type, value, from, to)
+          });
+        }
+      })
     });
 
     return filters;
@@ -148,24 +161,25 @@ export class FilterComponent implements OnInit {
   }
 
   resetForm () {
-    const defaultValues = this.defaultValuesByConfig();
-    this.filterForm.setValue(defaultValues);
+    this.defaultValuesByConfig()
+      .subscribe(defaultValues => {
+        this.filterForm.setValue(defaultValues);
+      });
   }
 
-  defaultValuesByConfig (): any {
-    // return key == "selectMany" ? [] : "";
-    const filterConfig = this.filterConfig;
-    const defaultConfig = {} as any;
-
-    filterConfig.forEach(config => {
-      if (config.type === "selectMany" ) {
-        const newValues = config.options?.map(option => option.value);
-        defaultConfig[config.key] = newValues;
-      } else {
-        defaultConfig[config.key] = "";
-      }
-    })
-
-    return defaultConfig;
+  defaultValuesByConfig(): Observable<any> {
+    return this.filterConfig.pipe(
+      map(configs => {
+        const defaultConfig: any = {};
+        configs.forEach(config => {
+          if (config.type === 'selectMany') {
+            defaultConfig[config.key] = config.options?.map(option => option.value) || [];
+          } else {
+            defaultConfig[config.key] = '';
+          }
+        });
+        return defaultConfig;
+      })
+    );
   }
 }

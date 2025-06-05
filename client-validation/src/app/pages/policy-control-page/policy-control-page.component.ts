@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, inject, OnInit, ViewChild} from '@angular/core';
 import {PolicyService} from "../../services/policy.service";
 import {tap} from "rxjs";
 import {AccessAction, AccessPolicyModel} from "../../models/accessPolicy.model";
@@ -27,6 +27,7 @@ import AuditRecordModel from "../../models/auditData.model";
 import {MatPaginator} from "@angular/material/paginator";
 import {DatePipe} from "@angular/common";
 import {MatStepper} from "@angular/material/stepper";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 const emptyPolicy: AccessPolicyModel = {
   name: "",
@@ -93,6 +94,8 @@ export class PolicyControlPageComponent implements OnInit {
     ipRulesString: string = '';
     newPolicyIpRulesString: string = '';
 
+    snackBar = inject(MatSnackBar);
+
     constructor( private policyService: PolicyService) {
       this.dataSource = new MatTableDataSource<AccessPolicyModel>([]);
     }
@@ -124,8 +127,12 @@ export class PolicyControlPageComponent implements OnInit {
     this.policyService.updatePolicy(this.selectedPolicy.id, this.selectedPolicy)
       .subscribe(() => {
         this.fetchAllPolicies();
-        alert("Політика оновлена успішно!");
+        this.openSnackBar("Політика оновлена успішно!");
       });
+  }
+
+  openSnackBar(message: string, action: string = "ok") {
+    this.snackBar.open(message, action);
   }
 
     fetchAllPolicies () {
@@ -155,7 +162,7 @@ export class PolicyControlPageComponent implements OnInit {
         this.fetchAllPolicies();
         this.newPolicy = { ...emptyPolicy };
         this.newPolicyIpRulesString = '';
-        alert("Політика створена успішно!");
+        this.openSnackBar("Політика створена успішно!");
       });
   }
 
@@ -165,7 +172,7 @@ export class PolicyControlPageComponent implements OnInit {
 
     this.policyService.reorderPolicies(policy.id, isUp).subscribe(() => {
       this.fetchAllPolicies();
-      alert("Порядок застосування політик змінено!");
+      this.openSnackBar("Порядок застосування політик змінено!");
     });
   }
   deletePolicy(policy: AccessPolicyModel) {
@@ -173,7 +180,7 @@ export class PolicyControlPageComponent implements OnInit {
 
     this.policyService.deletePolicy(policy.id).subscribe(() => {
       this.fetchAllPolicies();
-      alert("Політика видалена!");
+      this.openSnackBar("Політика видалена!");
     });
   }
 

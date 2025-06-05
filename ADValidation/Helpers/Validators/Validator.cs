@@ -1,8 +1,10 @@
+using System.Xml;
 using ADValidation.Enums;
 using ADValidation.Helpers.Ip;
 using ADValidation.Models;
 using ADValidation.Models.ERA;
 using ADValidation.Services;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace ADValidation.Helpers.Validators;
 
@@ -26,11 +28,14 @@ public class Validator
             var data = await completed;
 
             // Validate
-            var validationResult = GeneralValidationResult<T>.Success(data);
+            GeneralValidationResult<T> validationResult = GeneralValidationResult<T>.Success(data);
+          
+            //GeneralValidationResult<T>.Success(data);
             foreach (var validator in validators)
             {
                 validationResult = validator(data);
-                if (!validationResult.IsValid)
+                bool isEarlyValidationResult = (validationResult.IsValid && validationResult.AuditType != AuditType.Ok);
+                if (!validationResult.IsValid || isEarlyValidationResult)
                 {
                     break;
                 }

@@ -13,10 +13,11 @@ public enum AuditType
     AllowedAfterRetry  = 22,
     AllowedByCache  = 23,
 
+    NoAccessToDb = 10,
+    
     NotFound = 1,
     NotFoundDomain = 2,
     NotFoundEset = 3,
     NotValidEsetTimespan = 4,
-    NoAccessToDb = 10,
     BlockedByPolicy = 31,
 }

@@ -64,6 +64,8 @@ public class ValidationService
             if (policyResult.IsApplied)
             {
                 validationResult = HandleValidationResultByPolicyResult(validationResult, policyResult);
+                
+                return validationResult;
             }
 
             var validationAgregatedResult =

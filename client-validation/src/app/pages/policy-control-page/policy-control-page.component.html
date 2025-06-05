@@ -191,7 +191,7 @@
         <th mat-header-cell *matHeaderCellDef> Застосовується </th>
         <td mat-cell *matCellDef="let element">
           @if (element.isActive) {
-            <mat-icon>check</mat-icon>
+            <mat-icon  style="color: green">check</mat-icon>
           } @else {
             <mat-icon>block</mat-icon>
             <!--            <mat-icon>close</mat-icon>-->
@@ -246,12 +246,17 @@
       <ng-container matColumnDef="changeOrder">
         <th mat-header-cell *matHeaderCellDef> Порядок </th>
         <td mat-cell *matCellDef="let element">
-          <button mat-icon-button aria-label="Change order up" (click)="reorderPolicies(element, true)">
-            <mat-icon>arrow_upward</mat-icon>
-          </button>
-          <button mat-icon-button aria-label="Change order down" (click)="reorderPolicies(element, false)">
-            <mat-icon>arrow_downward</mat-icon>
-          </button>
+          @if (dataSource.data.indexOf(element) > 0) {
+            <button mat-icon-button aria-label="Change order up" (click)="reorderPolicies(element, true)">
+              <mat-icon style="color: darkolivegreen">arrow_upward</mat-icon>
+            </button>
+          }
+
+          @if (dataSource.data.indexOf(element) < dataSource.data.length - 1) {
+            <button mat-icon-button aria-label="Change order down" (click)="reorderPolicies(element, false)">
+              <mat-icon style="color: indianred">arrow_downward</mat-icon>
+            </button>
+          }
         </td>
       </ng-container>
       <!-- tableAction Column -->

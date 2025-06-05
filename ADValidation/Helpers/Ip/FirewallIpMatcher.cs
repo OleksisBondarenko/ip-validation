@@ -58,29 +58,32 @@ public static class FirewallIpMatcher
     /// Thrown if any of the input strings are not valid IP addresses.
     /// </exception>
     ///
-    public static bool IsIpInRule(string ipToCheck, string startIp, string endIp)
-    {
-        var ip = IPAddress.Parse(ipToCheck);
-        return IsInIpRange(ip, IPAddress.Parse(startIp), IPAddress.Parse(endIp));
-    }
-    /// <summary>
-    /// Checks whether the given IP address matches any rule in the provided array of filter rules.
-    /// Each rule can be an exact IP, a CIDR subnet, or an IP range (e.g., "192.168.1.1", "192.168.1.0/24", "192.168.1.10-192.168.1.20").
-    /// </summary>
-    /// <param name="ipToCheck">The IP address to validate.</param>
-    /// <param name="rules">An array of IP filter rules.</param>
-    /// <returns>True if the IP address matches any of the rules; otherwise, false.</returns>
-    /// <exception cref="FormatException">
-    /// Thrown if any rule in the list is malformed or contains an invalid IP or CIDR.
-    /// </exception>
+    // public static bool IsIpInRule(string ipToCheck, string startIp, string endIp)
+    // {
+    //     var ip = IPAddress.Parse(ipToCheck);
+    //     return IsInIpRange(ip, IPAddress.Parse(startIp), IPAddress.Parse(endIp));
+    // }
+    // /// <summary>
+    // /// Checks whether the given IP address matches any rule in the provided array of filter rules.
+    // /// Each rule can be an exact IP, a CIDR subnet, or an IP range (e.g., "192.168.1.1", "192.168.1.0/24", "192.168.1.10-192.168.1.20").
+    // /// </summary>
+    // /// <param name="ipToCheck">The IP address to validate.</param>
+    // /// <param name="rules">An array of IP filter rules.</param>
+    // /// <returns>True if the IP address matches any of the rules; otherwise, false.</returns>
+    // /// <exception cref="FormatException">
+    // /// Thrown if any rule in the list is malformed or contains an invalid IP or CIDR.
+    // /// </exception>
+    
     public static bool IsIpInRule(string ipToCheck, string[] rules)
     {
         foreach (var rule in rules)
         {
             if (IsIpInRule(ipToCheck, rule, false))
+            {
                 return true;
+            }
         }
-
+        
         return false;
     }
     

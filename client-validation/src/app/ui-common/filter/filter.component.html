@@ -1,7 +1,7 @@
 <!-- filter.component.html -->
 <form [formGroup]="filterForm" class="filter-container">
   <div class="filter-fields">
-    <ng-container *ngFor="let config of filterConfig">
+    <ng-container *ngFor="let config of filterConfig | async">
       <div class="filter-field" [ngSwitch]="config.type">
         <!-- Text Input -->
         <mat-form-field *ngSwitchCase="'text'" appearance="outline">

@@ -1,15 +1,17 @@
-import {AfterViewInit, Component, Input, OnInit, signal, ViewChild} from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import {MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
+import {AfterViewInit, Component, OnInit, signal, ViewChild} from '@angular/core';
+import {CommonModule, DatePipe} from '@angular/common';
+import {MatTableDataSource, MatTableModule} from '@angular/material/table';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
 import AuditRecordModel, {ResponseGetListAudit} from "../../models/auditData.model";
-import {MatPaginator, MatPaginatorIntl, MatPaginatorModule, PageEvent} from '@angular/material/paginator';
+import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
 import {AuditRepoService} from "../../services/audit-repo.service";
 import {catchError, from, map, Observable, startWith, switchMap} from "rxjs";
 import {FilterComponent, FilterConfig} from "../filter/filter.component";
 import {Filter, FilterRequest} from "../../models/filter.model";
-import { environment } from '../../../environments/environment';
+import {environment} from '../../../environments/environment';
+import {AuditFilterService} from "../../services/audit-filter.service";
+import {AuditTypeStatus} from "../../dto/filter";
 
 @Component({
   selector: 'app-audit-list',
@@ -28,7 +30,6 @@ import { environment } from '../../../environments/environment';
 })
 export class AuditListComponent implements OnInit, AfterViewInit {
   isEmpty = signal(true);
-  filterConfig: FilterConfig [] = environment.filterConfig;
 
   currentFilters: Filter [] = [];
   pageSizes = [5, 10, 20];
@@ -37,7 +38,11 @@ export class AuditListComponent implements OnInit, AfterViewInit {
   listData: AuditRecordModel [] = null!;
   dataSource: MatTableDataSource<AuditRecordModel> = null!;
   @ViewChild(MatPaginator) paginator: MatPaginator = null!;
-  displayedColumns: string[] = ['auditType', 'resourceName', 'timestamp', 'ip', "domain" ,'host'];
+  displayedColumns: string[] = ['auditType', 'resourceName', 'timestamp', 'ipAddress', "domain" ,'hostname'];
+
+  get filterConfig() {
+    return this.filterService.auditFilter;
+  }
 
   onFilterApply (filters: any[]) {
     this.currentFilters = filters;
@@ -54,7 +59,9 @@ export class AuditListComponent implements OnInit, AfterViewInit {
     this.initPaginator();
   }
 
-  constructor(private auditRepo: AuditRepoService) {
+  constructor(
+    private auditRepo: AuditRepoService,
+    private filterService: AuditFilterService,) {
     this.dataSource = new MatTableDataSource<AuditRecordModel>();
   }
 
@@ -136,5 +143,29 @@ export class AuditListComponent implements OnInit, AfterViewInit {
       }
 
       return this.auditRepo.getListAuditPost(filterRequest)
+  }
+
+  isAllowAuditType(auditType: number): Observable<boolean> {
+    return this.filterService
+      .auditTypesInfo
+      .pipe(
+        map((auditTypes) => {
+          // return auditTypes.some(type => type.type === auditType && type.isAllow)
+          const auditTypeInfo = auditTypes.find(typeInfo => typeInfo.type === auditType);
+          return auditTypeInfo?.status === AuditTypeStatus.Ok;
+        })
+    );
+  }
+
+  isDbErrorAuditType(auditType: number): Observable<boolean> {
+    return this.filterService
+      .auditTypesInfo
+      .pipe(
+        map((auditTypes) => {
+          // return auditTypes.some(type => type.type === auditType && type.isAllow)
+          const auditTypeInfo = auditTypes.find(typeInfo => typeInfo.type === auditType);
+          return auditTypeInfo?.status === AuditTypeStatus.Alert;
+        })
+      );
   }
 }

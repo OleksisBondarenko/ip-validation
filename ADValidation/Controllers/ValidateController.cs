@@ -70,7 +70,7 @@ public class ValidateController : ControllerBase
                 return Ok(validationResult);
             }
             
-            if (validationResult.IsValid)
+            if (validationResult.IsValid) 
             {                
                 _auditLogger.ExecuteWithAudit(validationResult);
                 return Ok(validationResult);

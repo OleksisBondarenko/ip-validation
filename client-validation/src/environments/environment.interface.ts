@@ -3,6 +3,6 @@ import {FilterConfig} from "../app/ui-common/filter/filter.component";
 export interface Environment {
   apiUrl: string;
   featureFlag: boolean;
-  filterConfig: FilterConfig [];
+  // filterConfig: FilterConfig [];
   production: boolean;
 }
