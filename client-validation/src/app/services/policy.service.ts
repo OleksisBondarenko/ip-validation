@@ -24,7 +24,6 @@ export class PolicyService {
   }
 
   createPolicy(newPolicyDto: AccessPolicyModel) {
-    debugger
     return this.apiService.post<AccessPolicyModel>(`api/v1/AccessPolicy`, newPolicyDto);
   }
 

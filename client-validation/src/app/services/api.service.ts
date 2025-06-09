@@ -1,7 +1,8 @@
 import { environment } from "../../environments/environment";
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpParams} from "@angular/common/http";
+import {HttpClient, HttpEvent, HttpParams, HttpResponse} from "@angular/common/http";
 import {catchError, Observable, throwError} from "rxjs";
+import {ErrorModel} from "../models/errorModel";
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +27,25 @@ export class ApiService {
     return this.http.get<T>(`${this.apiUrl}/${endpoint}`, { params: httpParams })
       .pipe(
         catchError(this.handleError)
+      );
+  }
+
+  // GET request
+  getFullResponse<T>(endpoint: string, options?: any): Observable<HttpEvent<T> | ErrorModel<T>> {
+    let httpParams = new HttpParams();
+
+    const params = options.params || {};
+    if (params) {
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null) {
+          httpParams = httpParams.append(key, params[key]);
+        }
+      });
+    }
+
+    return this.http.get<T>(`${this.apiUrl}/${endpoint}`, { ...options, params: httpParams })
+      .pipe(
+        catchError(this.handleErrorFull<T>)
       );
   }
 
@@ -62,9 +82,8 @@ export class ApiService {
   }
 
   // Error handling
-  private handleError(error: any): Observable<never> {
+  private handleError(error: any) {
     let errorMessage = 'An unknown error occurred!';
-
     console.error(error);
     if (error.error instanceof ErrorEvent) {
       // Client-side error
@@ -76,5 +95,25 @@ export class ApiService {
 
     console.error(errorMessage);
     return throwError(errorMessage);
+  }
+
+  // Error handling
+  private handleErrorFull<T>(error: any): Observable<ErrorModel<T>> {
+    let customError: ErrorModel<T>= { message: "" };
+
+    customError.error = error.error;
+    customError.status = error.status;
+    customError.message = 'An unknown error occurred!';
+    console.error(error);
+    if (error.error instanceof ErrorEvent) {
+      // Client-side error
+      customError.message = `Error: ${error.error.message}`;
+    } else {
+      // Server-side error
+      customError.message = `Error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+
+    console.error(customError.message);
+    return throwError(customError);
   }
 }

@@ -12,6 +12,7 @@ import {Environment} from "./environment.interface";
 export const environment: Environment = {
   production: false,
   apiUrl: "http://localhost:5001", // change when deploy.
+  redirectionByDefault: "http://localhost",
   featureFlag: true,
   // filterConfig: [
   //   {

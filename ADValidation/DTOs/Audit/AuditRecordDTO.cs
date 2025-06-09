@@ -8,7 +8,7 @@ public class AuditRecordDTO
 {
         public long Id { get; set; } 
         public AuditType AuditType { get; set; }
-        public string AuditTypeString { get => AuditTypeHelper.GetAuditTypeString(this.AuditType);  }
+        public string AuditTypeString { get => AuditTypeHelper.GetAuditTypeStringForAdmin(this.AuditType);  }
         public AuditDataDTO AuditData { get; set; }
         public string ResourceName { get; set; }
         private DateTime timeStamp;

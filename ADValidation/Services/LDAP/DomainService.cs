@@ -237,7 +237,8 @@ namespace ADValidation.Services
         private bool IsHostnameInActiveDirectory(string baseDN, string hostname)
         {
             string domainSufix = LdapParser.ParseLdapDomain(baseDN);
-            return hostname.EndsWith(domainSufix, StringComparison.OrdinalIgnoreCase);
+            bool res = hostname.EndsWith(domainSufix, StringComparison.OrdinalIgnoreCase);
+            return res;
         }
     }
 }

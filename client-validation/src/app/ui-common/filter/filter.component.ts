@@ -11,7 +11,8 @@ import {MatButton, MatButtonModule} from "@angular/material/button";
 
 
 import {OwlDateTimeModule, OwlNativeDateTimeModule} from "@danielmoncada/angular-datetime-picker";
-import {map, Observable, of} from "rxjs";
+import {map, Observable, of, switchMap} from "rxjs";
+import {Filter} from "../../models/filter.model";
 
 export interface FilterConfig {
   type: 'text' | 'date' | 'select' | 'selectMany';
@@ -20,7 +21,7 @@ export interface FilterConfig {
   options?: { value?: any; label?: string }[];
 }
 
-export type FilterType = FilterConfig['type']
+// export type FilterType = FilterConfig['type']
 
 @Component({
   selector: 'app-filter',
@@ -45,6 +46,7 @@ export type FilterType = FilterConfig['type']
   styleUrls: ['./filter.component.scss']
 })
 export class FilterComponent implements OnInit {
+  @Input() initialAppliedConfig: Filter[] = [];
   @Input() filterConfig: Observable<FilterConfig[]> = of([]);
   @Output() filterChanged = new EventEmitter<any>();
   @Output() filterReset = new EventEmitter<void>();
@@ -59,8 +61,7 @@ export class FilterComponent implements OnInit {
   ngOnInit() {
     this.createFormControls();
     this.setupFilterChanges();
-    this.resetForm();
-
+    this.resetFormByInitConfig();
   }
 
   private createFormControls() {
@@ -102,10 +103,6 @@ export class FilterComponent implements OnInit {
   }
 
   private parseFilters(formValue: any): any[] {
-    // if (!this.filterConfig) {
-    //   return [];
-    // }
-
     const filters: any[] = [];
 
     this.filterConfig.subscribe(configs => {
@@ -124,6 +121,7 @@ export class FilterComponent implements OnInit {
       })
     });
 
+
     return filters;
   }
 
@@ -131,6 +129,14 @@ export class FilterComponent implements OnInit {
     switch(type) {
       case 'date': return 'date';
       case 'selectMany': return 'stringArray';
+      default: return 'string';
+    }
+  }
+
+  private getFilterConfigType(type: string): string {
+    switch(type) {
+      case 'date': return 'date';
+      case 'stringArray': return 'selectMany';
       default: return 'string';
     }
   }
@@ -152,20 +158,65 @@ export class FilterComponent implements OnInit {
     const newFilters = this.parseFilters(this.filterForm.value);
     this.filterApply.emit(newFilters);
   }
-
-
-
   resetFilters() {
     this.resetForm();
     this.applyFilters();
   }
 
-  resetForm () {
-    this.defaultValuesByConfig()
+  resetFormByInitConfig() {
+    this.defaultValuesByInitialConfig()
       .subscribe(defaultValues => {
-        this.filterForm.setValue(defaultValues);
+        this.filterForm.reset(defaultValues);
+        this.applyFilters();
       });
   }
+
+  resetForm() {
+    this.defaultValuesByConfig()
+      .subscribe(defaultValues => {
+        this.filterForm.reset(defaultValues);
+      });
+  }
+
+  defaultValuesByInitialConfig(): Observable<any> {
+    const initialFilterConfigs =  this.initialAppliedConfig.map((fc) => {
+      return {
+        key: fc.alias,
+        options: fc.type === "stringArray" ?
+            JSON.parse(fc.value.input as string) : fc.value.input,
+        type: this.getFilterConfigType(fc.type),
+        label: ""
+      } as FilterConfig
+    }) as FilterConfig[]
+
+    return this.filterConfig.pipe(
+      map(filterConfigs => {
+        const defaultConfig: any = {};
+
+        filterConfigs.forEach(config => {
+          const initial =initialFilterConfigs.find(c => c.key === config.key);
+
+          if (initial && initial.type === 'selectMany') {
+            defaultConfig[config.key] = initial.options?.length ? initial.options : [] ;
+          } else if (initial && initial.type === 'date') {
+            defaultConfig[config.key] = '';
+          } else if (initial && initial.type !== 'selectMany') {
+            defaultConfig[config.key] = initial.options?.length ? initial.options : [];
+          }else {
+            // fallback if not in initialAppliedConfig
+            if (config.type === 'selectMany') {
+              defaultConfig[config.key] = config.options?.length ? config.options.map(o => o.value) : [];
+            } else {
+              defaultConfig[config.key] = '';
+            }
+          }
+        });
+
+        return defaultConfig;
+      })
+    );
+  }
+
 
   defaultValuesByConfig(): Observable<any> {
     return this.filterConfig.pipe(
@@ -182,4 +233,5 @@ export class FilterComponent implements OnInit {
       })
     );
   }
+
 }

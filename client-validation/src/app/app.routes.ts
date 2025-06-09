@@ -5,6 +5,7 @@ import {canActiveAuth} from "./guards/auth.guard";
 import {WhiteListPageComponent} from "./pages/white-list-page/white-list-page.component";
 import {LayoutAuthorizedComponent} from "./pages/layout-authorized/layout-authorized.component";
 import {PolicyControlPageComponent} from "./pages/policy-control-page/policy-control-page.component";
+import {ValidationErrorPageComponent} from "./pages/validation-error-page/validation-error-page.component";
 
 export const routes: Routes = [
   {
@@ -21,6 +22,10 @@ export const routes: Routes = [
         component: PolicyControlPageComponent
       }
     ]
+  },
+  {
+    path: 'secure-connection',
+    component: ValidationErrorPageComponent,
   },
   {
     path: 'login', component: LoginPageComponent

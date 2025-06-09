@@ -1,0 +1,57 @@
+.logo {
+  padding-top: 3rem;
+  //margin-top: 3rem;
+  margin-bottom: 3rem;
+  display: flex;
+  justify-content: center;
+  //transform: scale(calc(150 / 450));
+  //width: 150px;
+  //height: 150px;
+
+
+  svg {
+    // 100 here is size in px
+    width: 200px;
+    height: 200px;
+  }
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+
+  > * {
+    scale: 1.8;
+  }
+}
+
+.attempt {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.description{
+  text-align: center;
+  font-size: 1.2rem;
+  line-height: 2rem;
+  font-weight: 400;
+  margin-bottom: 1.6rem;
+}
+
+.buttons {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}

@@ -1,18 +1,12 @@
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using ADValidation.Decorators;
-using ADValidation.DTOs.AccessPolicy;
 using ADValidation.Enums;
-using ADValidation.Helpers.OrderHelper;
 using ADValidation.Helpers.Validators;
+using ADValidation.Mappers.Validators;
 using ADValidation.Models;
-using ADValidation.Models.ERA;
 using ADValidation.Services;
 using ADValidation.Services.Policy;
 using ADValidation.Services.Validation;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing.Matching;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace ADValidation.Controllers;
@@ -56,7 +50,7 @@ public class ValidateController : ControllerBase
 
 
     [HttpGet]
-    public async Task<ActionResult> Validate([FromQuery] string? resource, int retries = 9, int delayBetweenRetries = 3000 )
+    public async Task<ActionResult> Validate([FromQuery] string? resource, int retries = 0, int delayBetweenRetries = 3000 )
     {
         var validationResult = await _validationService.GetComputerValidationResultAsync(resource);
         
@@ -77,12 +71,17 @@ public class ValidateController : ControllerBase
             }
             validationResult = await _validationService.GetComputerValidationResultAsync(resource);
 
-            await Task.Delay(delayBetweenRetries);
+            if (retriesLeft > 0)
+            {
+                await Task.Delay(delayBetweenRetries);
+            }
+
             retriesLeft--;
         } while (retriesLeft > 0);
         
         _auditLogger.ExecuteWithAudit(validationResult);
-        return Unauthorized(validationResult);
+        var userFriendlyValidationResult = ValidationResultMapper.MapToFriendly<ComputerInfo>(validationResult);
+        return Unauthorized(userFriendlyValidationResult);
         
         // var validationResult = new ValidationResultDto();
         //

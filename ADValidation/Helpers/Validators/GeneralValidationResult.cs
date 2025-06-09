@@ -18,7 +18,7 @@ public class GeneralValidationResult<T>
     {
         get
         {
-            return AuditTypeHelper.GetAuditTypeString(AuditType);
+            return AuditTypeHelper.GetAuditTypeStringForAdmin(AuditType);
         }
     }
 

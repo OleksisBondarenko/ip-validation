@@ -6,7 +6,7 @@ import {MatIconModule} from '@angular/material/icon';
 import AuditRecordModel, {ResponseGetListAudit} from "../../models/auditData.model";
 import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
 import {AuditRepoService} from "../../services/audit-repo.service";
-import {catchError, from, map, Observable, startWith, switchMap} from "rxjs";
+import {catchError, from, map, Observable, of, startWith, switchMap} from "rxjs";
 import {FilterComponent, FilterConfig} from "../filter/filter.component";
 import {Filter, FilterRequest} from "../../models/filter.model";
 import {environment} from '../../../environments/environment';
@@ -46,34 +46,52 @@ export class AuditListComponent implements OnInit, AfterViewInit {
 
   onFilterApply (filters: any[]) {
     this.currentFilters = filters;
-
+    this.saveCurrentFiltersSettings()
     this.initPaginator();
   }
   onFilterChanged(filters: any[]) {
     this.currentFilters = filters;
+    this.saveCurrentFiltersSettings()
     this.paginator.firstPage();
   }
 
   onFilterReset() {
     this.currentFilters = [];
+    this.saveCurrentFiltersSettings();
     this.initPaginator();
   }
 
   constructor(
     private auditRepo: AuditRepoService,
     private filterService: AuditFilterService,) {
-    this.dataSource = new MatTableDataSource<AuditRecordModel>();
+      this.dataSource = new MatTableDataSource<AuditRecordModel>();
   }
 
   ngOnInit() {
-
   }
+
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
 
      this.initPaginator();
    }
+
+  saveCurrentFiltersSettings () {
+    const stringFilterSettings= JSON.stringify(this.currentFilters);
+    localStorage.setItem("auditListFilters", stringFilterSettings);
+  }
+
+  restoredCurrentFiltersSettings () {
+    const stringFilterSettings= localStorage.getItem("auditListFilters");
+
+    if (!!stringFilterSettings) {
+       return (JSON.parse(stringFilterSettings)as Filter  [])
+       ;
+    }
+
+    return [] as Filter [];
+  }
 
    initPaginator () {
      this.paginator.page

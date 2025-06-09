@@ -1,4 +1,5 @@
 <app-filter
+  [initialAppliedConfig]="restoredCurrentFiltersSettings()"
   [filterConfig]="filterConfig"
   (filterApply)="onFilterApply($event)"
   (filterChanged)="onFilterChanged($event)"

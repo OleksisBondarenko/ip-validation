@@ -12,6 +12,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
+  //TODO: use validation service
+  if (req.url.includes("/api/v1/Validate")) {
+    return next(req);
+  }
+
   req = req.clone({
     setHeaders: {
       Authorization: `Bearer ${token()}`

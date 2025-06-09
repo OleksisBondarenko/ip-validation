@@ -170,8 +170,7 @@ public class ValidationService
 
         return new ValidationResultAgregated<EraComputerInfo>(computerData, okFirstVariant, validationResults);
     }
-
-
+    
     public async Task<List<GeneralValidationResult<EraComputerInfo>>> ValidateWithEraAsync(string ipAddress)
     {
         var tasks = _eraSettings.EraDbConnectionStrings.Select(connectionStringKV =>
